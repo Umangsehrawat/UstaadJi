@@ -15,7 +15,7 @@ export default function Admin() {
         console.log("ADMIN PAGE TOKEN:", token);
 
         const statsResponse = await axios.get(
-          "http://localhost:5000/api/admin/stats",
+          "http://https://ustaadji-backend.onrender.com/api/admin/stats",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -24,7 +24,7 @@ export default function Admin() {
         );
 
         const reportsResponse = await axios.get(
-          "http://localhost:5000/api/admin/reports",
+          "http://https://ustaadji-backend.onrender.com/api/admin/reports",
           {
             headers: {
               Authorization: `Bearer ${token}`,

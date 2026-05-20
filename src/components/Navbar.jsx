@@ -18,7 +18,7 @@ function Navbar() {
         if (!token) return;
 
         const response = await axios.get(
-          "http://localhost:5000/api/chat/unread-count",
+          "http://https://ustaadji-backend.onrender.com/api/chat/unread-count",
           {
             headers: {
               Authorization: `Bearer ${token}`,

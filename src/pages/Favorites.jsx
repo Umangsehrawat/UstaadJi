@@ -16,7 +16,7 @@ export default function Favorites() {
     try {
       const token = localStorage.getItem("token");
 
-      const response = await axios.get("http://localhost:5000/api/favorites", {
+      const response = await axios.get("http://https://ustaadji-backend.onrender.com/api/favorites", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -33,7 +33,7 @@ export default function Favorites() {
         time: "Saved ad",
         image:
           ad.images && ad.images.length > 0
-            ? `http://localhost:5000${ad.images[0]}`
+            ? `http://https://ustaadji-backend.onrender.com${ad.images[0]}`
             : "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=900&q=80",
         tag: "Saved",
         is_favorited: true,
