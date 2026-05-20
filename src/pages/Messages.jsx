@@ -16,7 +16,7 @@ export default function Messages() {
   useEffect(() => {
     const fetchConversations = async () => {
       try {
-        const response = await axios.get("http://https://ustaadji-backend.onrender.com/api/chat", {
+        const response = await axios.get("https://ustaadji-backend.onrender.com/api/chat", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

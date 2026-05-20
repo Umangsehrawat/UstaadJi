@@ -17,7 +17,7 @@ export default function ListingCard({ item }) {
       }
 
       const response = await axios.post(
-        "http://https://ustaadji-backend.onrender.com/api/favorites/toggle",
+        "https://ustaadji-backend.onrender.com/api/favorites/toggle",
         {
           ad_id: item.id,
         },

@@ -64,7 +64,7 @@ export default function PostAd() {
         data.append("images", image);
       });
 
-      const response = await axios.post("http://https://ustaadji-backend.onrender.com/api/ads", data, {
+      const response = await axios.post("https://ustaadji-backend.onrender.com/api/ads", data, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",

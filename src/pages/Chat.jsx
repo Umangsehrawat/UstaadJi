@@ -7,7 +7,7 @@ import { io } from "socket.io-client";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
-const socket = io("http://https://ustaadji-backend.onrender.com");
+const socket = io("https://ustaadji-backend.onrender.com");
 
 export default function Chat() {
   const { conversationId } = useParams();
@@ -25,7 +25,7 @@ export default function Chat() {
 
   const fetchMessages = async () => {
     const response = await axios.get(
-      `http://https://ustaadji-backend.onrender.com/api/chat/${conversationId}/messages`,
+      `https://ustaadji-backend.onrender.com/api/chat/${conversationId}/messages`,
       {
         headers: { Authorization: `Bearer ${token}` },
       }
@@ -37,7 +37,7 @@ export default function Chat() {
   const markAsRead = async () => {
     try {
       await axios.put(
-        `http://https://ustaadji-backend.onrender.com/api/chat/${conversationId}/read`,
+        `https://ustaadji-backend.onrender.com/api/chat/${conversationId}/read`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -82,7 +82,7 @@ export default function Chat() {
 
     try {
       const response = await axios.post(
-        "http://https://ustaadji-backend.onrender.com/api/chat/message",
+        "https://ustaadji-backend.onrender.com/api/chat/message",
         {
           conversation_id: conversationId,
           message: text,

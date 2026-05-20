@@ -174,7 +174,7 @@ function ListingsSection({
       try {
         setLoading(true);
 
-        const response = await axios.get("http://https://ustaadji-backend.onrender.com/api/ads", {
+        const response = await axios.get("https://ustaadji-backend.onrender.com/api/ads", {
           params: { search, city },
         });
 
@@ -189,7 +189,7 @@ function ListingsSection({
           time: "Just now",
           image:
             ad.images && ad.images.length > 0
-              ? `http://https://ustaadji-backend.onrender.com${ad.images[0]}`
+              ? `https://ustaadji-backend.onrender.com${ad.images[0]}`
               : "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=900&q=80",
           tag: "New listing",
           is_favorited: ad.is_favorited,

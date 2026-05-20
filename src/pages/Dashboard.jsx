@@ -19,7 +19,7 @@ export default function Dashboard() {
       const token = localStorage.getItem("token");
 
       const response = await axios.get(
-        "http://https://ustaadji-backend.onrender.com/api/ads/my-ads",
+        "https://ustaadji-backend.onrender.com/api/ads/my-ads",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -45,7 +45,7 @@ export default function Dashboard() {
   try {
     const token = localStorage.getItem("token");
 
-    await axios.delete(`http://https://ustaadji-backend.onrender.com/api/ads/${id}`, {
+    await axios.delete(`https://ustaadji-backend.onrender.com/api/ads/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -109,7 +109,7 @@ export default function Dashboard() {
             {ads.map((ad) => {
               const imageUrl =
                 ad.images && ad.images.length > 0
-                  ? `http://https://ustaadji-backend.onrender.com${ad.images[0]}`
+                  ? `https://ustaadji-backend.onrender.com${ad.images[0]}`
                   : "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80";
 
               return (

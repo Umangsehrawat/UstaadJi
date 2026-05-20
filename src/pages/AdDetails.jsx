@@ -35,14 +35,14 @@ export default function AdDetails() {
     const fetchAd = async () => {
       try {
         const response = await axios.get(
-          `http://https://ustaadji-backend.onrender.com/api/ads/${id}`
+          `https://ustaadji-backend.onrender.com/api/ads/${id}`
         );
 
         const fetchedAd = response.data;
         setAd(fetchedAd);
 
         if (fetchedAd.images && fetchedAd.images.length > 0) {
-          setSelectedImage(`http://https://ustaadji-backend.onrender.com${fetchedAd.images[0]}`);
+          setSelectedImage(`https://ustaadji-backend.onrender.com${fetchedAd.images[0]}`);
         }
       } catch (error) {
         console.error(error);
@@ -61,7 +61,7 @@ export default function AdDetails() {
 
   const imageList =
     ad?.images && ad.images.length > 0
-      ? ad.images.map((img) => `http://https://ustaadji-backend.onrender.com${img}`)
+      ? ad.images.map((img) => `https://ustaadji-backend.onrender.com${img}`)
       : [fallbackImage];
 
   const priceText = ad?.price
@@ -77,7 +77,7 @@ export default function AdDetails() {
       const token = localStorage.getItem("token");
 
       await axios.post(
-        "http://https://ustaadji-backend.onrender.com/api/reports",
+        "https://ustaadji-backend.onrender.com/api/reports",
         {
           ad_id: ad.id,
           reason: reportReason,
@@ -120,7 +120,7 @@ export default function AdDetails() {
       }
 
       const response = await axios.post(
-        "http://https://ustaadji-backend.onrender.com/api/chat/start",
+        "https://ustaadji-backend.onrender.com/api/chat/start",
         {
           ad_id: ad.id,
           seller_id: ad.user_id,

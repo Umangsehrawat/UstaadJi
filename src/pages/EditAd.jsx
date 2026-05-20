@@ -24,7 +24,7 @@ export default function EditAd() {
   useEffect(() => {
     const fetchAd = async () => {
       try {
-        const response = await axios.get(`http://https://ustaadji-backend.onrender.com/api/ads/${id}`);
+        const response = await axios.get(`https://ustaadji-backend.onrender.com/api/ads/${id}`);
         const ad = response.data;
 
         setFormData({
@@ -62,7 +62,7 @@ export default function EditAd() {
 
       const token = localStorage.getItem("token");
 
-      await axios.put(`http://https://ustaadji-backend.onrender.com/api/ads/${id}`, formData, {
+      await axios.put(`https://ustaadji-backend.onrender.com/api/ads/${id}`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
