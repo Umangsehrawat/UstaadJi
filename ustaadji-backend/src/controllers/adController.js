@@ -39,7 +39,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'active')
 
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
-        const imageUrl = `/uploads/${file.filename}`;
+        const imageUrl = file.path;
 
         await pool.query(
           "INSERT INTO ad_images (ad_id, image_url) VALUES ($1, $2)",

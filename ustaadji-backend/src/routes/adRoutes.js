@@ -3,7 +3,7 @@ const router = express.Router();
 
 const adController = require("../controllers/adController");
 const { protect } = require("../middleware/authMiddleware");
-const upload = require("../middleware/uploadMiddleware");
+const upload = require("../middleware/upload");
 
 router.get("/", adController.getAds);
 
