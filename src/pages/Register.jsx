@@ -2,46 +2,61 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../api/api";
 
+function validatePhone(phone) {
+  return /^[6-9]\d{9}$/.test(phone);
+}
+
 function Register() {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     name: "",
-    email: "",
     phone: "",
     city: "",
     password: "",
+    confirmPassword: "",
   });
 
+  const [phoneError, setPhoneError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    if (name === "phone") setPhoneError("");
+    if (name === "password" || name === "confirmPassword") setPasswordError("");
+    setError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!validatePhone(formData.phone)) {
+      setPhoneError("Enter a valid 10-digit Indian mobile number (starts with 6-9)");
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setPasswordError("Passwords do not match");
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setPasswordError("Password must be at least 6 characters");
+      return;
+    }
+
     try {
       setLoading(true);
-
-      const response = await api.post("/auth/register", formData);
-
+      const { confirmPassword, ...payload } = formData;
+      const response = await api.post("/auth/register", payload);
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
-
-      alert("Registration successful!");
-
       navigate("/");
-    } catch (error) {
-      console.error(error);
-
-      alert(
-        error.response?.data?.message || "Registration failed"
-      );
+    } catch (err) {
+      setError(err.response?.data?.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -54,15 +69,9 @@ function Register() {
           <div className="w-12 h-12 rounded-2xl bg-[#00072d] flex items-center justify-center text-white font-bold text-2xl">
             U
           </div>
-
           <div>
-            <h1 className="font-black text-2xl text-[#00072d]">
-              Ustaadji
-            </h1>
-
-            <p className="text-sm text-gray-500">
-              India’s local marketplace
-            </p>
+            <h1 className="font-black text-2xl text-[#00072d]">Ustaadji</h1>
+            <p className="text-sm text-gray-500">India's local marketplace</p>
           </div>
         </Link>
       </header>
@@ -77,6 +86,12 @@ function Register() {
             Create your account
           </h2>
 
+          {error && (
+            <div className="mb-6 rounded-2xl bg-red-50 border border-red-200 px-5 py-4 text-sm font-semibold text-red-600">
+              {error}
+            </div>
+          )}
+
           <form className="space-y-5" onSubmit={handleSubmit}>
             <input
               type="text"
@@ -84,28 +99,32 @@ function Register() {
               placeholder="Full name"
               value={formData.name}
               onChange={handleChange}
-              className="w-full border border-gray-200 rounded-2xl px-6 py-5 text-lg outline-none"
+              className="w-full border border-gray-200 rounded-2xl px-6 py-5 text-lg outline-none focus:border-emerald-500"
               required
             />
 
-            <input
-              type="email"
-              name="email"
-              placeholder="Email address"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full border border-gray-200 rounded-2xl px-6 py-5 text-lg outline-none"
-              required
-            />
-
-            <input
-              type="text"
-              name="phone"
-              placeholder="Phone number"
-              value={formData.phone}
-              onChange={handleChange}
-              className="w-full border border-gray-200 rounded-2xl px-6 py-5 text-lg outline-none"
-            />
+            <div>
+              <div className="flex overflow-hidden rounded-2xl border border-gray-200 focus-within:border-emerald-500">
+                <span className="flex items-center bg-slate-50 px-4 text-sm font-bold text-slate-500 border-r border-gray-200">
+                  +91
+                </span>
+                <input
+                  type="tel"
+                  name="phone"
+                  placeholder="Phone number"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  maxLength={10}
+                  className="w-full px-5 py-5 text-lg outline-none"
+                  required
+                />
+              </div>
+              {phoneError && (
+                <p className="mt-2 text-sm font-semibold text-red-500">
+                  {phoneError}
+                </p>
+              )}
+            </div>
 
             <input
               type="text"
@@ -113,34 +132,50 @@ function Register() {
               placeholder="City"
               value={formData.city}
               onChange={handleChange}
-              className="w-full border border-gray-200 rounded-2xl px-6 py-5 text-lg outline-none"
+              className="w-full border border-gray-200 rounded-2xl px-6 py-5 text-lg outline-none focus:border-emerald-500"
             />
 
-            <input
-              type="password"
-              name="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={handleChange}
-              className="w-full border border-gray-200 rounded-2xl px-6 py-5 text-lg outline-none"
-              required
-            />
+            <div>
+              <input
+                type="password"
+                name="password"
+                placeholder="Password (min. 6 characters)"
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full border border-gray-200 rounded-2xl px-6 py-5 text-lg outline-none focus:border-emerald-500"
+                required
+              />
+            </div>
+
+            <div>
+              <input
+                type="password"
+                name="confirmPassword"
+                placeholder="Confirm password"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                className="w-full border border-gray-200 rounded-2xl px-6 py-5 text-lg outline-none focus:border-emerald-500"
+                required
+              />
+              {passwordError && (
+                <p className="mt-2 text-sm font-semibold text-red-500">
+                  {passwordError}
+                </p>
+              )}
+            </div>
 
             <button
               type="submit"
               disabled={loading}
               className="w-full bg-[#00072d] hover:bg-black text-white py-5 rounded-2xl font-bold text-xl transition"
             >
-              {loading ? "Creating account..." : "Register"}
+              {loading ? "Creating account..." : "Create Account"}
             </button>
           </form>
 
           <p className="text-center text-gray-500 mt-8">
             Already have an account?{" "}
-            <Link
-              to="/login"
-              className="text-[#00b67a] font-bold"
-            >
+            <Link to="/login" className="text-[#00b67a] font-bold">
               Login
             </Link>
           </p>
@@ -148,8 +183,7 @@ function Register() {
       </div>
 
       <footer className="border-t border-gray-200 px-10 py-6 text-gray-500 flex justify-between text-sm">
-        <p>© 2026 Ustaadji.in — India’s local marketplace.</p>
-
+        <p>© 2026 Ustaadji.in — India's local marketplace.</p>
         <div className="flex gap-6">
           <a href="#">Privacy</a>
           <a href="#">Terms</a>
