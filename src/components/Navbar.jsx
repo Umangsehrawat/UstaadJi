@@ -92,7 +92,7 @@ function Navbar() {
           >
             Favorites
           </Link>
-          {user?.email === "umangsehrawat45@gmail.com" && (
+          {user?.role === "admin" && (
   <Link to="/admin" className="font-semibold hover:text-emerald-600">
     Admin
   </Link>
