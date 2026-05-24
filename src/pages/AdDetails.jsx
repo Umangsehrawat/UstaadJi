@@ -42,7 +42,7 @@ export default function AdDetails() {
         setAd(fetchedAd);
 
         if (fetchedAd.images && fetchedAd.images.length > 0) {
-          setSelectedImage(`https://ustaadji-backend.onrender.com${fetchedAd.images[0]}`);
+          setSelectedImage(fetchedAd.images[0]);
         }
       } catch (error) {
         console.error(error);
@@ -61,7 +61,7 @@ export default function AdDetails() {
 
   const imageList =
     ad?.images && ad.images.length > 0
-      ? ad.images.map((img) => `https://ustaadji-backend.onrender.com${img}`)
+      ? ad.images
       : [fallbackImage];
 
   const priceText = ad?.price
