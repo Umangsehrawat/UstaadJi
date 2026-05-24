@@ -5,7 +5,23 @@ import axios from "axios";
 import { useState } from "react";
 
 export default function ListingCard({ item }) {
- const [favorited, setFavorited] = useState(item.is_favorited || false);
+  const [favorited, setFavorited] = useState(
+    item.is_favorited || false
+  );
+
+  const getImageUrl = (image) => {
+    if (!image) {
+      return "https://images.unsplash.com/photo-1560518883-ce09059eeffa";
+    }
+
+    // Cloudinary image
+    if (image.startsWith("http")) {
+      return image;
+    }
+
+    // Old local uploads
+    return `https://ustaadji-backend.onrender.com${image}`;
+  };
 
   const handleFavorite = async () => {
     try {
@@ -42,7 +58,7 @@ export default function ListingCard({ item }) {
     >
       <div className="relative h-56 overflow-hidden">
         <img
-          src={item.image}
+          src={getImageUrl(item.image)}
           alt={item.title}
           className="h-full w-full object-cover transition duration-500 hover:scale-105"
         />
