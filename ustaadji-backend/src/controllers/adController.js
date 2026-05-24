@@ -1,3 +1,4 @@
+const cloudinary = require("../config/cloudinary");
 const pool = require("../config/db");
 
 exports.createAd = async (req, res) => {
@@ -39,7 +40,19 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'active')
 
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
-        const imageUrl = file.path;
+        const uploadResult = await new Promise((resolve, reject) => {
+  const stream = cloudinary.uploader.upload_stream(
+    { folder: "ustaadji_ads" },
+    (error, result) => {
+      if (error) reject(error);
+      else resolve(result);
+    }
+  );
+
+  stream.end(file.buffer);
+});
+
+const imageUrl = uploadResult.secure_url;
 
         await pool.query(
           "INSERT INTO ad_images (ad_id, image_url) VALUES ($1, $2)",
