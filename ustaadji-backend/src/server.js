@@ -17,6 +17,19 @@ const io = new Server(server, {
   },
 });
 
+const pool = require("./config/db");
+
+const runMigrations = async () => {
+  try {
+    await pool.query(`ALTER TABLE users ALTER COLUMN email DROP NOT NULL`);
+  } catch (_) {}
+  try {
+    await pool.query(`ALTER TABLE users ADD CONSTRAINT users_phone_unique UNIQUE (phone)`);
+  } catch (_) {}
+};
+
+runMigrations();
+
 const authRoutes = require("./routes/authRoutes");
 const adRoutes = require("./routes/adRoutes");
 const reportRoutes = require("./routes/reportRoutes");
