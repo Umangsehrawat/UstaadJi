@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import { Search, MapPin, Star, SlidersHorizontal } from "lucide-react";
+import { Search, MapPin, Star, SlidersHorizontal, ShieldCheck, CreditCard, UserCheck, MessageCircleWarning, Eye, BadgeCheck } from "lucide-react";
 import { motion } from "framer-motion";
 
 import Navbar from "../components/Navbar";
@@ -18,7 +18,7 @@ const services = [
   },
   {
     name: "Carpentry & Woodwork",
-    image: "https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=400&q=80",
+    image: "https://images.unsplash.com/photo-1530124566582-a618bc2615dc?auto=format&fit=crop&w=400&q=80",
   },
   {
     name: "Electrician",
@@ -30,7 +30,7 @@ const services = [
   },
   {
     name: "Air Conditioning",
-    image: "https://images.unsplash.com/photo-1531834685032-c34bf0d84c77?auto=format&fit=crop&w=400&q=80",
+    image: "https://images.unsplash.com/photo-1563453392212-326f5e854473?auto=format&fit=crop&w=400&q=80",
   },
   {
     name: "Painters & Painting",
@@ -50,7 +50,7 @@ const services = [
   },
   {
     name: "Windows & Doors",
-    image: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=400&q=80",
+    image: "https://images.unsplash.com/photo-1509644851169-2acc08aa25b5?auto=format&fit=crop&w=400&q=80",
   },
   {
     name: "Deep Cleaning",
@@ -184,6 +184,92 @@ function ServicesSection({ onServiceClick }) {
             </div>
           </motion.button>
         ))}
+      </div>
+    </section>
+  );
+}
+
+const safetyTips = [
+  {
+    icon: UserCheck,
+    title: "Verify before you hire",
+    desc: "Ask the professional for their ID, previous work photos, or references before hiring.",
+    color: "bg-blue-50 text-blue-600",
+  },
+  {
+    icon: CreditCard,
+    title: "Never pay 100% upfront",
+    desc: "Pay only a small advance. Release the full payment only after the work is completed to your satisfaction.",
+    color: "bg-emerald-50 text-emerald-600",
+  },
+  {
+    icon: Eye,
+    title: "Be present during the work",
+    desc: "Stay at home or have a trusted person present while the service professional is working.",
+    color: "bg-purple-50 text-purple-600",
+  },
+  {
+    icon: BadgeCheck,
+    title: "Check reviews & ratings",
+    desc: "Read reviews from other customers before hiring. Prefer professionals with verified work history.",
+    color: "bg-orange-50 text-orange-600",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Use traceable payments",
+    desc: "Pay via UPI, bank transfer or other digital methods. Avoid large cash transactions.",
+    color: "bg-teal-50 text-teal-600",
+  },
+  {
+    icon: MessageCircleWarning,
+    title: "Report suspicious listings",
+    desc: "If a listing seems too cheap, fake, or suspicious — report it immediately using the Report button.",
+    color: "bg-red-50 text-red-600",
+  },
+];
+
+function SafetySection() {
+  return (
+    <section id="safety" className="bg-[#00072d] py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-12 text-center">
+          <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-bold text-emerald-400">
+            <ShieldCheck size={16} />
+            Your safety matters
+          </div>
+          <h2 className="text-3xl font-black tracking-tight text-white sm:text-4xl">
+            Stay safe on Ustaadji
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-base font-medium text-slate-400">
+            Follow these simple guidelines to have a safe and hassle-free experience hiring service professionals.
+          </p>
+        </div>
+
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {safetyTips.map((tip) => {
+            const Icon = tip.icon;
+            return (
+              <motion.div
+                key={tip.title}
+                whileHover={{ y: -4 }}
+                className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur transition hover:border-emerald-500/40 hover:bg-white/10"
+              >
+                <div className={`mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl ${tip.color}`}>
+                  <Icon size={22} />
+                </div>
+                <h3 className="text-base font-black text-white">{tip.title}</h3>
+                <p className="mt-2 text-sm font-medium leading-relaxed text-slate-400">{tip.desc}</p>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        <p className="mt-10 text-center text-sm font-semibold text-slate-500">
+          Something wrong?{" "}
+          <a href="mailto:support@ustaadji.in" className="text-emerald-400 hover:underline">
+            Contact our support team
+          </a>
+        </p>
       </div>
     </section>
   );
@@ -340,6 +426,8 @@ export default function HomePage() {
       />
 
       <ServicesSection onServiceClick={handleServiceClick} />
+
+      <SafetySection />
 
       <ListingsSection
         search={search}

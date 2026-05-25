@@ -3,7 +3,17 @@ const pool = require("../config/db");
 
 exports.getCategories = async (req, res) => {
   try {
-    const result = await pool.query("SELECT id, name FROM categories ORDER BY name");
+    const serviceNames = [
+      "Appliance Repair", "Brick & Masonry", "Carpentry & Woodwork",
+      "Electrician", "Excavation & Demolition", "Air Conditioning",
+      "Painters & Painting", "Plumbing", "Renovations",
+      "Welding", "Windows & Doors", "Deep Cleaning",
+      "Marble & Tilework", "Wifi / CCTV / Smart Door", "Other Services",
+    ];
+    const result = await pool.query(
+      `SELECT id, name FROM categories WHERE name = ANY($1) ORDER BY name`,
+      [serviceNames]
+    );
     res.json(result.rows);
   } catch (error) {
     console.error(error);
