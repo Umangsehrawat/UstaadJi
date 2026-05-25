@@ -1,43 +1,76 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import {
-  Search,
-  MapPin,
-  Star,
-  SlidersHorizontal,
-  Car,
-  Home as HomeIcon,
-  Briefcase,
-  Sofa,
-  Smartphone,
-  Wrench,
-  Tv,
-  Building2,
-  GraduationCap,
-  Hammer,
-  SmartphoneCharging,
-} from "lucide-react";
+import { Search, MapPin, Star, SlidersHorizontal } from "lucide-react";
 import { motion } from "framer-motion";
 
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import ListingCard from "../components/ListingCard";
 
-const categories = [
-  { name: "Jobs", icon: Briefcase, count: "820" },
-  { name: "Services", icon: Wrench, count: "1.5k" },
-  { name: "Rent / PG / Rooms", icon: HomeIcon, count: "1.2k" },
-  { name: "Cars & Bikes", icon: Car, count: "2.4k" },
-  { name: "Electronics", icon: Smartphone, count: "3.2k" },
-  { name: "Furniture", icon: Sofa, count: "1.7k" },
-  { name: "Home Appliances", icon: Tv, count: "640" },
-  { name: "Real Estate", icon: Building2, count: "1.1k" },
-  { name: "Tutors & Classes", icon: GraduationCap, count: "780" },
-  { name: "Home Repair", icon: Hammer, count: "950" },
-  { name: "Mobile Phones", icon: SmartphoneCharging, count: "2.8k" },
+const services = [
+  {
+    name: "Appliance Repair",
+    image: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    name: "Brick & Masonry",
+    image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    name: "Carpentry & Woodwork",
+    image: "https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    name: "Electrician",
+    image: "https://images.unsplash.com/photo-1621905251189-08b45249a61a?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    name: "Excavation & Demolition",
+    image: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    name: "Air Conditioning",
+    image: "https://images.unsplash.com/photo-1585771724684-38269d6639fd?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    name: "Painters & Painting",
+    image: "https://images.unsplash.com/photo-1562259949-e8e7689d7828?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    name: "Plumbing",
+    image: "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    name: "Renovations & Handyman",
+    image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    name: "Welding",
+    image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    name: "Windows & Doors",
+    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    name: "Deep Cleaning",
+    image: "https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    name: "Marble & Tilework",
+    image: "https://images.unsplash.com/photo-1600566752355-35792bedcfea?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    name: "Wifi / CCTV / Smart Door",
+    image: "https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    name: "Other Services",
+    image: "https://images.unsplash.com/photo-1572981779307-38b8cabb2407?auto=format&fit=crop&w=400&q=80",
+  },
 ];
 
-const filters = ["All", ...categories.map((cat) => cat.name)];
+const filters = ["All", ...services.map((s) => s.name)];
 
 function SearchBox({ search, setSearch, city, setCity, handleSearch }) {
   return (
@@ -51,7 +84,7 @@ function SearchBox({ search, setSearch, city, setCity, handleSearch }) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full bg-transparent text-sm font-semibold text-slate-800 outline-none"
-          placeholder="Search for mobiles, jobs, services..."
+          placeholder="Search for painters, plumbers, electricians..."
         />
       </div>
 
@@ -87,17 +120,17 @@ function Hero({ search, setSearch, city, setCity, handleSearch }) {
         >
           <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/70 px-4 py-2 text-sm font-bold text-emerald-700 shadow-sm">
             <Star size={16} fill="currentColor" />
-            Trusted local marketplace for India
+            Trusted local services across India
           </div>
 
           <h1 className="text-5xl font-black tracking-tight text-slate-950 sm:text-6xl lg:text-7xl">
-            Buy. Sell. Discover. <br />
-            <span className="text-emerald-500">All near you.</span>
+            Find trusted experts. <br />
+            <span className="text-emerald-500">Right near you.</span>
           </h1>
 
           <p className="mx-auto mt-6 max-w-2xl text-lg font-medium leading-8 text-slate-600">
-            Ustaadji helps you discover jobs, services, rentals, electronics,
-            furniture, vehicles, and local opportunities across India.
+            Ustaadji connects you with skilled local service professionals —
+            plumbers, electricians, painters, cleaners, and more across India.
           </p>
         </motion.div>
 
@@ -113,47 +146,43 @@ function Hero({ search, setSearch, city, setCity, handleSearch }) {
   );
 }
 
-function CategoriesSection({ onCategoryClick }) {
+function ServicesSection({ onServiceClick }) {
   return (
     <section
       id="categories"
       className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8"
     >
-      <div className="mb-8">
+      <div className="mb-10">
         <p className="text-sm font-black uppercase tracking-[0.2em] text-emerald-600">
           Explore
         </p>
-
         <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
-          Browse by category
+          Browse by service
         </h2>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {categories.map((cat) => {
-          const Icon = cat.icon;
-
-          return (
-            <motion.button
-              whileHover={{ y: -5 }}
-              key={cat.name}
-              onClick={() => onCategoryClick(cat.name)}
-              className="group cursor-pointer rounded-3xl border border-slate-200 bg-white p-6 text-left shadow-sm transition hover:border-emerald-200 hover:shadow-xl"
-            >
-              <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-800 transition group-hover:bg-emerald-500 group-hover:text-white">
-                <Icon size={26} />
-              </div>
-
-              <h3 className="text-lg font-black text-slate-950">
-                {cat.name}
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+        {services.map((service) => (
+          <motion.button
+            whileHover={{ y: -4, scale: 1.02 }}
+            key={service.name}
+            onClick={() => onServiceClick(service.name)}
+            className="group cursor-pointer overflow-hidden rounded-2xl border border-slate-200 bg-white text-left shadow-sm transition hover:border-emerald-300 hover:shadow-lg"
+          >
+            <div className="h-32 overflow-hidden bg-slate-100">
+              <img
+                src={service.image}
+                alt={service.name}
+                className="h-full w-full object-cover transition duration-300 group-hover:scale-110"
+              />
+            </div>
+            <div className="p-3">
+              <h3 className="text-sm font-black leading-tight text-slate-900">
+                {service.name}
               </h3>
-
-              <p className="mt-1 text-sm font-semibold text-slate-500">
-                {cat.count} active listings
-              </p>
-            </motion.button>
-          );
-        })}
+            </div>
+          </motion.button>
+        ))}
       </div>
     </section>
   );
@@ -222,7 +251,6 @@ function ListingsSection({
             <p className="text-sm font-black uppercase tracking-[0.2em] text-emerald-600">
               Fresh finds
             </p>
-
             <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
               Featured listings
             </h2>
@@ -258,7 +286,7 @@ function ListingsSection({
           <div className="rounded-[2rem] border border-dashed border-slate-300 bg-white p-12 text-center">
             <h3 className="text-2xl font-black">No listings found</h3>
             <p className="mt-2 text-sm font-semibold text-slate-500">
-              Try another search, city, or category.
+              Try another search, city, or service type.
             </p>
           </div>
         ) : (
@@ -293,8 +321,8 @@ export default function HomePage() {
     scrollToListings();
   };
 
-  const handleCategoryClick = (category) => {
-    setActiveCategory(category);
+  const handleServiceClick = (serviceName) => {
+    setActiveCategory(serviceName);
     scrollToListings();
   };
 
@@ -310,7 +338,7 @@ export default function HomePage() {
         handleSearch={handleSearch}
       />
 
-      <CategoriesSection onCategoryClick={handleCategoryClick} />
+      <ServicesSection onServiceClick={handleServiceClick} />
 
       <ListingsSection
         search={search}
