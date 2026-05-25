@@ -58,6 +58,28 @@ const getReports = async (req, res) => {
   }
 };
 
+const getAllAds = async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT ads.id, ads.title, ads.city, ads.status, ads.created_at,
+             categories.name AS category_name,
+             users.name AS seller_name,
+             users.phone AS seller_phone,
+             COALESCE(json_agg(ad_images.image_url) FILTER (WHERE ad_images.id IS NOT NULL), '[]') AS images
+      FROM ads
+      LEFT JOIN categories ON ads.category_id = categories.id
+      LEFT JOIN users ON ads.user_id = users.id
+      LEFT JOIN ad_images ON ads.id = ad_images.ad_id
+      GROUP BY ads.id, categories.name, users.name, users.phone
+      ORDER BY ads.created_at DESC
+    `);
+    res.json(result.rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to fetch ads" });
+  }
+};
+
 const deleteAd = async (req, res) => {
   try {
     const { id } = req.params;
@@ -85,6 +107,7 @@ const dismissReport = async (req, res) => {
 module.exports = {
   getDashboardStats,
   getReports,
+  getAllAds,
   deleteAd,
   dismissReport,
 };

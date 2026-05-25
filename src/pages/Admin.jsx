@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Users, FileText, MessageSquare, Flag, Trash2, X, ShieldAlert } from "lucide-react";
+import { Users, FileText, MessageSquare, Flag, Trash2, X, ShieldAlert, MapPin, ExternalLink } from "lucide-react";
+import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
@@ -9,6 +10,7 @@ const API = "https://ustaadji-backend.onrender.com/api";
 export default function Admin() {
   const [stats, setStats] = useState(null);
   const [reports, setReports] = useState([]);
+  const [allAds, setAllAds] = useState([]);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("overview");
 
@@ -18,12 +20,14 @@ export default function Admin() {
   useEffect(() => {
     const fetchAdminData = async () => {
       try {
-        const [statsRes, reportsRes] = await Promise.all([
+        const [statsRes, reportsRes, adsRes] = await Promise.all([
           axios.get(`${API}/admin/stats`, { headers }),
           axios.get(`${API}/admin/reports`, { headers }),
+          axios.get(`${API}/admin/ads`, { headers }),
         ]);
         setStats(statsRes.data);
         setReports(reportsRes.data);
+        setAllAds(adsRes.data);
       } catch {
         setError("Admin access required. Make sure your account has admin privileges.");
       }
@@ -36,6 +40,7 @@ export default function Admin() {
     try {
       await axios.delete(`${API}/admin/ads/${adId}`, { headers });
       setReports((prev) => prev.filter((r) => r.ad_id !== adId));
+      setAllAds((prev) => prev.filter((a) => a.id !== adId));
       if (stats) setStats((s) => ({ ...s, totalAds: String(Number(s.totalAds) - 1) }));
     } catch {
       alert("Failed to delete ad");
@@ -108,17 +113,21 @@ export default function Admin() {
 
             {/* Tabs */}
             <div className="mt-10 flex gap-2 border-b border-slate-200">
-              {["overview", "reports"].map((tab) => (
+              {[
+                { key: "overview", label: "Overview" },
+                { key: "reports", label: `Reports (${reports.length})` },
+                { key: "ads", label: `Manage Ads (${allAds.length})` },
+              ].map((tab) => (
                 <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
                   className={`px-5 py-3 text-sm font-black capitalize transition border-b-2 -mb-px ${
-                    activeTab === tab
+                    activeTab === tab.key
                       ? "border-emerald-500 text-emerald-600"
                       : "border-transparent text-slate-500 hover:text-slate-800"
                   }`}
                 >
-                  {tab === "reports" ? `Reports (${reports.length})` : "Overview"}
+                  {tab.label}
                 </button>
               ))}
             </div>
@@ -167,6 +176,90 @@ export default function Admin() {
                     </li>
                   </ul>
                 </div>
+              </div>
+            )}
+
+            {/* Manage Ads Tab */}
+            {activeTab === "ads" && (
+              <div className="mt-8">
+                {allAds.length === 0 ? (
+                  <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-14 text-center">
+                    <FileText className="mx-auto text-slate-300" size={40} />
+                    <h3 className="mt-4 text-xl font-black">No ads found</h3>
+                    <p className="mt-2 font-semibold text-slate-500">No listings have been posted yet.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {allAds.map((ad) => (
+                      <div key={ad.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                        <div className="flex items-start gap-4">
+                          {/* Thumbnail */}
+                          <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-slate-100">
+                            {ad.images && ad.images.length > 0 ? (
+                              <img
+                                src={ad.images[0]}
+                                alt={ad.title}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center">
+                                <FileText size={24} className="text-slate-300" />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Info */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              {ad.category_name && (
+                                <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-600">
+                                  {ad.category_name}
+                                </span>
+                              )}
+                              <span className={`rounded-full px-3 py-1 text-xs font-black ${
+                                ad.status === "active"
+                                  ? "bg-green-50 text-green-600"
+                                  : "bg-slate-100 text-slate-500"
+                              }`}>
+                                {ad.status}
+                              </span>
+                            </div>
+                            <h3 className="mt-1.5 text-base font-black truncate">{ad.title}</h3>
+                            <p className="text-sm font-semibold text-slate-500">
+                              {ad.seller_name || "Unknown seller"}
+                              {ad.seller_phone ? ` · +91 ${ad.seller_phone}` : ""}
+                            </p>
+                            <div className="mt-1 flex items-center gap-1 text-xs font-semibold text-slate-400">
+                              <MapPin size={11} />
+                              {ad.city || "No city"}
+                              <span className="mx-1">·</span>
+                              {new Date(ad.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                            </div>
+                          </div>
+
+                          {/* Actions */}
+                          <div className="flex shrink-0 flex-col gap-2">
+                            <Link
+                              to={`/ads/${ad.id}`}
+                              target="_blank"
+                              className="flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-xs font-black text-slate-600 hover:bg-slate-50 transition"
+                            >
+                              <ExternalLink size={13} />
+                              View
+                            </Link>
+                            <button
+                              onClick={() => handleDeleteAd(ad.id, null)}
+                              className="flex items-center gap-2 rounded-xl bg-red-500 px-4 py-2 text-xs font-black text-white hover:bg-red-600 transition"
+                            >
+                              <Trash2 size={13} />
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
