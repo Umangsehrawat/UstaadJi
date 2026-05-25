@@ -37,7 +37,8 @@ const runMigrations = async () => {
   for (const name of newCategories) {
     try {
       await pool.query(
-        "INSERT INTO categories (name) VALUES ($1) ON CONFLICT (name) DO NOTHING",
+        `INSERT INTO categories (name)
+         SELECT $1 WHERE NOT EXISTS (SELECT 1 FROM categories WHERE name = $1)`,
         [name]
       );
     } catch (_) {}
