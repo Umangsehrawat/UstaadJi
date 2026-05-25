@@ -10,7 +10,7 @@ import ListingCard from "../components/ListingCard";
 const services = [
   {
     name: "Appliance Repair",
-    image: "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=400&q=80",
+    image: "https://samedayrepair.ca/wp-content/uploads/2022/03/whirlpool-repair-winnipeg.jpg",
   },
   {
     name: "Brick & Masonry",
@@ -18,7 +18,7 @@ const services = [
   },
   {
     name: "Carpentry & Woodwork",
-    image: "https://images.unsplash.com/photo-1530124566582-a618bc2615dc?auto=format&fit=crop&w=400&q=80",
+    image: "https://4-hontario.ca/wp-content/uploads/2020/09/Woodworking-L2_Main-Image-1920x1080.jpeg",
   },
   {
     name: "Electrician",
@@ -30,7 +30,7 @@ const services = [
   },
   {
     name: "Air Conditioning",
-    image: "https://images.unsplash.com/photo-1563453392212-326f5e854473?auto=format&fit=crop&w=400&q=80",
+    image: "https://www.daikinmea.com/en_us/knowledge-center/how-often-should-you-service-your-ac-unit/_jcr_content/image21.coreimg.jpeg/1759163315470/service-your-ac-unit.jpeg",
   },
   {
     name: "Painters & Painting",
@@ -50,7 +50,7 @@ const services = [
   },
   {
     name: "Windows & Doors",
-    image: "https://images.unsplash.com/photo-1509644851169-2acc08aa25b5?auto=format&fit=crop&w=400&q=80",
+    image: "https://airtasker-seo-assets-prod.s3.amazonaws.com/en_AU/1636069155327_windows_and_doors_parent.jpg",
   },
   {
     name: "Deep Cleaning",
