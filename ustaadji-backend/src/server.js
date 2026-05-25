@@ -26,6 +26,22 @@ const runMigrations = async () => {
   try {
     await pool.query(`ALTER TABLE users ADD CONSTRAINT users_phone_unique UNIQUE (phone)`);
   } catch (_) {}
+
+  const newCategories = [
+    "Appliance Repair", "Brick & Masonry", "Carpentry & Woodwork",
+    "Electrician", "Excavation & Demolition", "Air Conditioning",
+    "Painters & Painting", "Plumbing", "Renovations",
+    "Welding", "Windows & Doors", "Deep Cleaning",
+    "Marble & Tilework", "Wifi / CCTV / Smart Door", "Other Services",
+  ];
+  for (const name of newCategories) {
+    try {
+      await pool.query(
+        "INSERT INTO categories (name) VALUES ($1) ON CONFLICT (name) DO NOTHING",
+        [name]
+      );
+    } catch (_) {}
+  }
 };
 
 runMigrations();

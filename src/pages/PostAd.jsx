@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { UploadCloud, X, CheckCircle } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import axios from "axios";
+
+const MAX_IMAGES = 5;
+const MAX_SIZE_MB = 2;
+const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
 
 export default function PostAd() {
   const navigate = useNavigate();
@@ -17,115 +22,158 @@ export default function PostAd() {
     contact_phone: "",
   });
 
-  const [images, setImages] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [images, setImages] = useState([]);       // File objects
+  const [previews, setPreviews] = useState([]);   // Object URLs for preview
+  const [imageError, setImageError] = useState("");
+  const [formError, setFormError] = useState("");
+  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-
     if (!token) {
-      alert("Please login first to post an ad.");
       navigate("/login");
-    }
-  }, [navigate]);
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-
-    if (files.length > 5) {
-      alert("Maximum 5 images allowed.");
       return;
     }
 
-    setImages(files);
+    // Fetch categories from backend
+    axios
+      .get("https://ustaadji-backend.onrender.com/api/ads/categories")
+      .then((res) => setCategories(res.data))
+      .catch(() => {});
+  }, [navigate]);
+
+  // Clean up object URLs when component unmounts
+  useEffect(() => {
+    return () => previews.forEach((url) => URL.revokeObjectURL(url));
+  }, [previews]);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormError("");
+  };
+
+  const handleImageChange = (e) => {
+    setImageError("");
+    const incoming = Array.from(e.target.files);
+
+    // Check total count
+    if (images.length + incoming.length > MAX_IMAGES) {
+      setImageError(`You can upload a maximum of ${MAX_IMAGES} images.`);
+      e.target.value = "";
+      return;
+    }
+
+    // Check each file size
+    const oversized = incoming.filter((f) => f.size > MAX_SIZE_BYTES);
+    if (oversized.length > 0) {
+      setImageError(
+        `These files exceed ${MAX_SIZE_MB}MB: ${oversized.map((f) => f.name).join(", ")}`
+      );
+      e.target.value = "";
+      return;
+    }
+
+    const newPreviews = incoming.map((f) => URL.createObjectURL(f));
+    setImages((prev) => [...prev, ...incoming]);
+    setPreviews((prev) => [...prev, ...newPreviews]);
+    e.target.value = "";
+  };
+
+  const removeImage = (index) => {
+    URL.revokeObjectURL(previews[index]);
+    setImages((prev) => prev.filter((_, i) => i !== index));
+    setPreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setFormError("");
 
     try {
       setLoading(true);
-
       const token = localStorage.getItem("token");
       const data = new FormData();
 
       Object.keys(formData).forEach((key) => {
-        data.append(key, formData[key]);
+        if (formData[key]) data.append(key, formData[key]);
       });
+      images.forEach((img) => data.append("images", img));
 
-      images.forEach((image) => {
-        data.append("images", image);
-      });
-
-      const response = await axios.post("https://ustaadji-backend.onrender.com/api/ads", data, {
+      await axios.post("https://ustaadji-backend.onrender.com/api/ads", data, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
       });
 
-      alert(response.data.message);
-
-      setFormData({
-        category_id: "",
-        title: "",
-        description: "",
-        price: "",
-        city: "",
-        location: "",
-        contact_phone: "",
-      });
-
+      setSuccess(true);
+      setFormData({ category_id: "", title: "", description: "", price: "", city: "", location: "", contact_phone: "" });
+      previews.forEach((url) => URL.revokeObjectURL(url));
       setImages([]);
+      setPreviews([]);
+
+      setTimeout(() => navigate("/dashboard"), 1800);
     } catch (error) {
-      console.error(error);
-      alert(error.response?.data?.message || "Failed to create ad");
+      setFormError(error.response?.data?.message || "Failed to post ad. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
+  if (success) {
+    return (
+      <main className="min-h-screen bg-slate-50 text-slate-950">
+        <Navbar />
+        <div className="flex flex-col items-center justify-center py-32">
+          <CheckCircle size={64} className="text-emerald-500" />
+          <h2 className="mt-6 text-3xl font-black">Ad published!</h2>
+          <p className="mt-2 text-slate-500 font-semibold">Redirecting you to dashboard...</p>
+        </div>
+        <Footer />
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-slate-50 text-slate-950">
       <Navbar />
 
-      <section className="mx-auto max-w-5xl px-4 py-14 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-3xl px-4 py-14 sm:px-6 lg:px-8">
         <div className="mb-10">
           <p className="text-sm font-black uppercase tracking-[0.2em] text-emerald-600">
             Create listing
           </p>
-
           <h1 className="mt-2 text-4xl font-black tracking-tight">
-            Post your ad on Ustaadji
+            Post your service on Ustaadji
           </h1>
-
-          <p className="mt-3 max-w-2xl text-lg font-medium text-slate-500">
-            Sell products, offer services, rent property, post jobs, and connect
-            with people across India.
+          <p className="mt-3 text-lg font-medium text-slate-500">
+            Reach customers across your city looking for your service.
           </p>
         </div>
 
         <div className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-xl">
+          {formError && (
+            <div className="mb-6 rounded-2xl bg-red-50 border border-red-200 px-5 py-4 text-sm font-semibold text-red-600">
+              {formError}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="grid gap-6">
+
+            {/* Title + Category */}
             <div className="grid gap-6 md:grid-cols-2">
               <div>
                 <label className="mb-2 block text-sm font-black text-slate-700">
-                  Ad title
+                  Ad title <span className="text-red-500">*</span>
                 </label>
-
                 <input
                   type="text"
                   name="title"
                   value={formData.title}
                   onChange={handleChange}
-                  placeholder="e.g. iPhone 15 Pro Max for sale"
+                  placeholder="e.g. Professional Plumbing Services"
                   className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400"
                   required
                 />
@@ -133,75 +181,68 @@ export default function PostAd() {
 
               <div>
                 <label className="mb-2 block text-sm font-black text-slate-700">
-                  Category
+                  Service category <span className="text-red-500">*</span>
                 </label>
-
                 <select
                   name="category_id"
                   value={formData.category_id}
                   onChange={handleChange}
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400"
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400 bg-white"
                   required
                 >
-                  <option value="">Select category</option>
-                  <option value="1">Jobs</option>
-                  <option value="2">Services</option>
-                  <option value="3">Rent / PG / Rooms</option>
-                  <option value="4">Cars & Bikes</option>
-                  <option value="5">Electronics</option>
-                  <option value="6">Furniture</option>
-                  <option value="7">Home Appliances</option>
-                  <option value="8">Real Estate</option>
-                  <option value="9">Tutors & Classes</option>
-                  <option value="10">Home Repair</option>
-                  <option value="11">Mobile Phones</option>
+                  <option value="">Select a service</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
 
+            {/* Description */}
             <div>
               <label className="mb-2 block text-sm font-black text-slate-700">
-                Description
+                Description <span className="text-red-500">*</span>
               </label>
-
               <textarea
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                rows="6"
-                placeholder="Describe your product or service..."
+                rows="5"
+                placeholder="Describe your service — experience, what's included, timings, etc."
                 className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400"
                 required
               />
             </div>
 
-            <div className="grid gap-6 md:grid-cols-4">
+            {/* Price, City, Area, Phone */}
+            <div className="grid gap-6 sm:grid-cols-2">
               <div>
                 <label className="mb-2 block text-sm font-black text-slate-700">
-                  Price
+                  Price (₹)
                 </label>
-
                 <input
                   type="number"
                   name="price"
                   value={formData.price}
                   onChange={handleChange}
-                  placeholder="₹"
+                  placeholder="e.g. 500"
+                  min="0"
                   className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400"
                 />
               </div>
 
               <div>
                 <label className="mb-2 block text-sm font-black text-slate-700">
-                  City
+                  City <span className="text-red-500">*</span>
                 </label>
-
                 <input
                   type="text"
                   name="city"
                   value={formData.city}
                   onChange={handleChange}
-                  placeholder="Delhi"
+                  placeholder="e.g. Delhi"
                   className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400"
                   required
                 />
@@ -209,74 +250,97 @@ export default function PostAd() {
 
               <div>
                 <label className="mb-2 block text-sm font-black text-slate-700">
-                  Area / Location
+                  Area / Locality
                 </label>
-
                 <input
                   type="text"
                   name="location"
                   value={formData.location}
                   onChange={handleChange}
-                  placeholder="Rohini, Sector 7"
+                  placeholder="e.g. Rohini, Sector 7"
                   className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400"
                 />
               </div>
 
               <div>
                 <label className="mb-2 block text-sm font-black text-slate-700">
-                  Phone number
+                  Contact phone
                 </label>
-
-                <input
-                  type="text"
-                  name="contact_phone"
-                  value={formData.contact_phone}
-                  onChange={handleChange}
-                  placeholder="+91"
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400"
-                />
+                <div className="flex overflow-hidden rounded-2xl border border-slate-200 focus-within:border-emerald-400">
+                  <span className="flex items-center bg-slate-50 px-4 text-sm font-bold text-slate-500 border-r border-slate-200">
+                    +91
+                  </span>
+                  <input
+                    type="tel"
+                    name="contact_phone"
+                    value={formData.contact_phone}
+                    onChange={handleChange}
+                    placeholder="Phone number"
+                    maxLength={10}
+                    className="w-full px-4 py-4 font-semibold outline-none"
+                  />
+                </div>
               </div>
             </div>
 
+            {/* Image Upload */}
             <div>
               <label className="mb-2 block text-sm font-black text-slate-700">
-                Upload images
+                Photos{" "}
+                <span className="font-semibold text-slate-400">
+                  (max {MAX_IMAGES} images, {MAX_SIZE_MB}MB each)
+                </span>
               </label>
 
-              <div className="rounded-3xl border-2 border-dashed border-slate-300 bg-slate-50 px-6 py-12 text-center">
-                <p className="text-lg font-black text-slate-700">
-                  Upload up to 5 images
-                </p>
+              {/* Previews */}
+              {previews.length > 0 && (
+                <div className="mb-4 flex flex-wrap gap-3">
+                  {previews.map((src, i) => (
+                    <div key={i} className="relative h-24 w-24 overflow-hidden rounded-2xl border border-slate-200">
+                      <img src={src} alt={`preview ${i + 1}`} className="h-full w-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(i)}
+                        className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white shadow"
+                      >
+                        <X size={11} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
 
-                <p className="mt-2 text-sm font-semibold text-slate-500">
-                  PNG, JPG, WEBP up to 5MB each
-                </p>
+              {images.length < MAX_IMAGES && (
+                <label className="flex cursor-pointer flex-col items-center gap-3 rounded-3xl border-2 border-dashed border-slate-300 bg-slate-50 px-6 py-10 transition hover:border-emerald-400 hover:bg-emerald-50">
+                  <UploadCloud size={36} className="text-slate-400" />
+                  <div className="text-center">
+                    <p className="font-black text-slate-700">Click to upload photos</p>
+                    <p className="mt-1 text-sm font-semibold text-slate-400">
+                      JPG, PNG, WEBP — max {MAX_SIZE_MB}MB each · {images.length}/{MAX_IMAGES} uploaded
+                    </p>
+                  </div>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
+                </label>
+              )}
 
-                <input
-                  type="file"
-                  multiple
-                  accept="image/jpeg,image/png,image/webp"
-                  onChange={handleImageChange}
-                  className="mx-auto mt-5 block max-w-sm rounded-2xl bg-white p-3 text-sm font-semibold"
-                />
-
-                {images.length > 0 && (
-                  <p className="mt-4 text-sm font-bold text-emerald-600">
-                    {images.length} image(s) selected
-                  </p>
-                )}
-              </div>
+              {imageError && (
+                <p className="mt-2 text-sm font-semibold text-red-500">{imageError}</p>
+              )}
             </div>
 
+            {/* Guidelines */}
             <div className="rounded-3xl border border-emerald-100 bg-emerald-50 p-5">
-              <h3 className="font-black text-emerald-700">
-                Posting guidelines
-              </h3>
-
-              <ul className="mt-3 space-y-2 text-sm font-semibold text-emerald-900">
-                <li>No fake products or scam listings.</li>
-                <li>No weapons, drugs, or prohibited items.</li>
-                <li>Provide clear and honest descriptions.</li>
+              <h3 className="font-black text-emerald-700">Posting guidelines</h3>
+              <ul className="mt-3 space-y-1.5 text-sm font-semibold text-emerald-900">
+                <li>Only post real services you can provide.</li>
+                <li>Add clear photos of your work for more inquiries.</li>
+                <li>Provide honest pricing and descriptions.</li>
               </ul>
             </div>
 

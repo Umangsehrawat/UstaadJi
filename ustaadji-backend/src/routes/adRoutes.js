@@ -5,6 +5,7 @@ const adController = require("../controllers/adController");
 const { protect } = require("../middleware/authMiddleware");
 const upload = require("../middleware/upload");
 
+router.get("/categories", adController.getCategories);
 router.get("/", adController.getAds);
 
 router.get("/my-ads", protect, adController.getMyAds);

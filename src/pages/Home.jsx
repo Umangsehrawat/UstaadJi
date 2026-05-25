@@ -10,7 +10,7 @@ import ListingCard from "../components/ListingCard";
 const services = [
   {
     name: "Appliance Repair",
-    image: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=400&q=80",
+    image: "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=400&q=80",
   },
   {
     name: "Brick & Masonry",
@@ -18,11 +18,11 @@ const services = [
   },
   {
     name: "Carpentry & Woodwork",
-    image: "https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?auto=format&fit=crop&w=400&q=80",
+    image: "https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=400&q=80",
   },
   {
     name: "Electrician",
-    image: "https://images.unsplash.com/photo-1621905251189-08b45249a61a?auto=format&fit=crop&w=400&q=80",
+    image: "https://images.unsplash.com/photo-1555963966-b7ae5404b6ed?auto=format&fit=crop&w=400&q=80",
   },
   {
     name: "Excavation & Demolition",
@@ -30,7 +30,7 @@ const services = [
   },
   {
     name: "Air Conditioning",
-    image: "https://images.unsplash.com/photo-1585771724684-38269d6639fd?auto=format&fit=crop&w=400&q=80",
+    image: "https://images.unsplash.com/photo-1531834685032-c34bf0d84c77?auto=format&fit=crop&w=400&q=80",
   },
   {
     name: "Painters & Painting",
@@ -41,16 +41,16 @@ const services = [
     image: "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?auto=format&fit=crop&w=400&q=80",
   },
   {
-    name: "Renovations & Handyman",
+    name: "Renovations",
     image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=400&q=80",
   },
   {
     name: "Welding",
-    image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80",
+    image: "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=400&q=80",
   },
   {
     name: "Windows & Doors",
-    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=400&q=80",
+    image: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=400&q=80",
   },
   {
     name: "Deep Cleaning",
@@ -71,6 +71,7 @@ const services = [
 ];
 
 const filters = ["All", ...services.map((s) => s.name)];
+
 
 function SearchBox({ search, setSearch, city, setCity, handleSearch }) {
   return (
