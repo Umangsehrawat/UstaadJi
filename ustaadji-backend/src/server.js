@@ -26,6 +26,12 @@ const runMigrations = async () => {
   try {
     await pool.query(`ALTER TABLE users ADD CONSTRAINT users_phone_unique UNIQUE (phone)`);
   } catch (_) {}
+  try {
+    await pool.query(
+      `UPDATE users SET is_admin = true, role = 'admin' WHERE phone = $1`,
+      ["9718411915"]
+    );
+  } catch (_) {}
 
   const newCategories = [
     "Appliance Repair", "Brick & Masonry", "Carpentry & Woodwork",
