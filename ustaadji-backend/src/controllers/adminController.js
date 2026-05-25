@@ -58,8 +58,34 @@ const getReports = async (req, res) => {
   }
 };
 
+const deleteAd = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.query("DELETE FROM ad_images WHERE ad_id = $1", [id]);
+    await pool.query("DELETE FROM reports WHERE ad_id = $1", [id]);
+    await pool.query("DELETE FROM ads WHERE id = $1", [id]);
+    res.json({ message: "Ad deleted by admin" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to delete ad" });
+  }
+};
+
+const dismissReport = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.query("DELETE FROM reports WHERE id = $1", [id]);
+    res.json({ message: "Report dismissed" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to dismiss report" });
+  }
+};
+
 module.exports = {
   getDashboardStats,
   getReports,
+  deleteAd,
+  dismissReport,
 };
 

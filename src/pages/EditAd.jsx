@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
+import { ArrowLeft, CheckCircle } from "lucide-react";
 import axios from "axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+
+const API = "https://ustaadji-backend.onrender.com/api";
 
 export default function EditAd() {
   const { id } = useParams();
@@ -18,15 +21,21 @@ export default function EditAd() {
     contact_phone: "",
   });
 
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    const fetchAd = async () => {
+    const init = async () => {
       try {
-        const response = await axios.get(`https://ustaadji-backend.onrender.com/api/ads/${id}`);
-        const ad = response.data;
+        const [adRes, catRes] = await Promise.all([
+          axios.get(`${API}/ads/${id}`),
+          axios.get(`${API}/ads/categories`),
+        ]);
 
+        const ad = adRes.data;
         setFormData({
           category_id: ad.category_id || "",
           title: ad.title || "",
@@ -36,43 +45,34 @@ export default function EditAd() {
           location: ad.location || "",
           contact_phone: ad.contact_phone || "",
         });
-      } catch (error) {
-        console.error(error);
-        alert("Failed to load ad");
+        setCategories(catRes.data);
+      } catch {
+        setError("Failed to load ad details.");
       } finally {
         setLoading(false);
       }
     };
-
-    fetchAd();
+    init();
   }, [id]);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setError("");
   };
 
   const handleUpdate = async (e) => {
     e.preventDefault();
-
+    setError("");
     try {
       setSaving(true);
-
       const token = localStorage.getItem("token");
-
-      await axios.put(`https://ustaadji-backend.onrender.com/api/ads/${id}`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      await axios.put(`${API}/ads/${id}`, formData, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-
-      alert("Ad updated successfully");
-      navigate("/dashboard");
-    } catch (error) {
-      console.error(error);
-      alert(error.response?.data?.message || "Failed to update ad");
+      setSuccess(true);
+      setTimeout(() => navigate("/dashboard"), 1500);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to update ad.");
     } finally {
       setSaving(false);
     }
@@ -82,9 +82,23 @@ export default function EditAd() {
     return (
       <main className="min-h-screen bg-slate-50 text-slate-950">
         <Navbar />
-        <section className="mx-auto max-w-5xl px-4 py-20">
+        <section className="mx-auto max-w-3xl px-4 py-20 text-center">
           <p className="text-xl font-black">Loading ad...</p>
         </section>
+        <Footer />
+      </main>
+    );
+  }
+
+  if (success) {
+    return (
+      <main className="min-h-screen bg-slate-50 text-slate-950">
+        <Navbar />
+        <div className="flex flex-col items-center justify-center py-32">
+          <CheckCircle size={64} className="text-emerald-500" />
+          <h2 className="mt-6 text-3xl font-black">Ad updated!</h2>
+          <p className="mt-2 font-semibold text-slate-500">Redirecting to dashboard...</p>
+        </div>
         <Footer />
       </main>
     );
@@ -94,25 +108,30 @@ export default function EditAd() {
     <main className="min-h-screen bg-slate-50 text-slate-950">
       <Navbar />
 
-      <section className="mx-auto max-w-5xl px-4 py-14 sm:px-6 lg:px-8">
-        <div className="mb-10">
-          <p className="text-sm font-black uppercase tracking-[0.2em] text-emerald-600">
-            Edit listing
-          </p>
+      <section className="mx-auto max-w-3xl px-4 py-14 sm:px-6 lg:px-8">
+        <Link to="/dashboard" className="mb-8 inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-slate-900">
+          <ArrowLeft size={16} />
+          Back to Dashboard
+        </Link>
 
-          <h1 className="mt-2 text-4xl font-black tracking-tight">
-            Update your ad
-          </h1>
+        <div className="mb-8">
+          <p className="text-sm font-black uppercase tracking-[0.2em] text-emerald-600">Edit listing</p>
+          <h1 className="mt-2 text-4xl font-black tracking-tight">Update your ad</h1>
         </div>
 
         <div className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-xl">
+          {error && (
+            <div className="mb-6 rounded-2xl bg-red-50 border border-red-200 px-5 py-4 text-sm font-semibold text-red-600">
+              {error}
+            </div>
+          )}
+
           <form onSubmit={handleUpdate} className="grid gap-6">
             <div className="grid gap-6 md:grid-cols-2">
               <div>
                 <label className="mb-2 block text-sm font-black text-slate-700">
-                  Ad title
+                  Ad title <span className="text-red-500">*</span>
                 </label>
-
                 <input
                   type="text"
                   name="title"
@@ -125,84 +144,91 @@ export default function EditAd() {
 
               <div>
                 <label className="mb-2 block text-sm font-black text-slate-700">
-                  Category
+                  Service category <span className="text-red-500">*</span>
                 </label>
-
                 <select
                   name="category_id"
                   value={formData.category_id}
                   onChange={handleChange}
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400"
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 font-semibold outline-none focus:border-emerald-400"
                   required
                 >
-                  <option value="">Select category</option>
-                  <option value="1">Jobs</option>
-                  <option value="2">Services</option>
-                  <option value="3">Rent / PG / Rooms</option>
-                  <option value="4">Cars & Bikes</option>
-                  <option value="5">Electronics</option>
-                  <option value="6">Furniture</option>
-                  <option value="7">Home Appliances</option>
-                  <option value="8">Real Estate</option>
-                  <option value="9">Tutors & Classes</option>
-                  <option value="10">Home Repair</option>
-                  <option value="11">Mobile Phones</option>
+                  <option value="">Select a service</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  ))}
                 </select>
               </div>
             </div>
 
             <div>
               <label className="mb-2 block text-sm font-black text-slate-700">
-                Description
+                Description <span className="text-red-500">*</span>
               </label>
-
               <textarea
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                rows="6"
+                rows="5"
                 className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400"
                 required
               />
             </div>
 
-            <div className="grid gap-6 md:grid-cols-4">
-              <input
-                type="number"
-                name="price"
-                value={formData.price}
-                onChange={handleChange}
-                placeholder="Price"
-                className="rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400"
-              />
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div>
+                <label className="mb-2 block text-sm font-black text-slate-700">Price (₹)</label>
+                <input
+                  type="number"
+                  name="price"
+                  value={formData.price}
+                  onChange={handleChange}
+                  placeholder="e.g. 500"
+                  min="0"
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400"
+                />
+              </div>
 
-              <input
-                type="text"
-                name="city"
-                value={formData.city}
-                onChange={handleChange}
-                placeholder="City"
-                className="rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400"
-                required
-              />
+              <div>
+                <label className="mb-2 block text-sm font-black text-slate-700">City <span className="text-red-500">*</span></label>
+                <input
+                  type="text"
+                  name="city"
+                  value={formData.city}
+                  onChange={handleChange}
+                  placeholder="e.g. Delhi"
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400"
+                  required
+                />
+              </div>
 
-              <input
-                type="text"
-                name="location"
-                value={formData.location}
-                onChange={handleChange}
-                placeholder="Area / Location"
-                className="rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400"
-              />
+              <div>
+                <label className="mb-2 block text-sm font-black text-slate-700">Area / Locality</label>
+                <input
+                  type="text"
+                  name="location"
+                  value={formData.location}
+                  placeholder="e.g. Rohini, Sector 7"
+                  onChange={handleChange}
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400"
+                />
+              </div>
 
-              <input
-                type="text"
-                name="contact_phone"
-                value={formData.contact_phone}
-                onChange={handleChange}
-                placeholder="Phone"
-                className="rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400"
-              />
+              <div>
+                <label className="mb-2 block text-sm font-black text-slate-700">Contact phone</label>
+                <div className="flex overflow-hidden rounded-2xl border border-slate-200 focus-within:border-emerald-400">
+                  <span className="flex items-center bg-slate-50 px-4 text-sm font-bold text-slate-500 border-r border-slate-200">+91</span>
+                  <input
+                    type="tel"
+                    name="contact_phone"
+                    value={formData.contact_phone}
+                    onChange={handleChange}
+                    placeholder="Phone number"
+                    maxLength={10}
+                    className="w-full px-4 py-4 font-semibold outline-none"
+                  />
+                </div>
+              </div>
             </div>
 
             <button
@@ -210,7 +236,7 @@ export default function EditAd() {
               disabled={saving}
               className="rounded-2xl bg-emerald-500 px-6 py-4 text-lg font-black text-white shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-600 disabled:opacity-70"
             >
-              {saving ? "Updating..." : "Update Ad"}
+              {saving ? "Saving changes..." : "Save Changes"}
             </button>
           </form>
         </div>

@@ -108,7 +108,6 @@ export default function Chat() {
       setText("");
     } catch (error) {
       console.error(error);
-      alert("Failed to send message");
     }
   };
 

@@ -52,10 +52,8 @@ export default function Dashboard() {
     });
 
     setAds(ads.filter((ad) => ad.id !== id));
-    alert("Ad deleted successfully");
   } catch (error) {
     console.error(error);
-    alert(error.response?.data?.message || "Failed to delete ad");
   }
 };
 
@@ -109,8 +107,8 @@ export default function Dashboard() {
             {ads.map((ad) => {
               const imageUrl =
                 ad.images && ad.images.length > 0
-                  ? `https://ustaadji-backend.onrender.com${ad.images[0]}`
-                  : "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80";
+                  ? ad.images[0]
+                  : "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80";
 
               return (
                 <div

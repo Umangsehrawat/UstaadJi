@@ -10,6 +10,9 @@ import EditAd from "./pages/EditAd";
 import Chat from "./pages/Chat";
 import Messages from "./pages/Messages";
 import Favorites from "./pages/Favorites";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
+import Support from "./pages/Support";
 
 export default function App() {
   return (
@@ -26,6 +29,9 @@ export default function App() {
         <Route path="/chat/:conversationId" element={<Chat />} />
         <Route path="/messages" element={<Messages />} />
         <Route path="/favorites" element={<Favorites />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/support" element={<Support />} />
       </Routes>
     </BrowserRouter>
   );

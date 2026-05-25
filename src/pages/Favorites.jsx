@@ -33,7 +33,7 @@ export default function Favorites() {
         time: "Saved ad",
         image:
           ad.images && ad.images.length > 0
-            ? `https://ustaadji-backend.onrender.com${ad.images[0]}`
+            ? ad.images[0]
             : "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=900&q=80",
         tag: "Saved",
         is_favorited: true,
@@ -42,7 +42,6 @@ export default function Favorites() {
       setFavorites(formattedFavorites);
     } catch (error) {
       console.error(error);
-      alert("Failed to load favorites");
     } finally {
       setLoading(false);
     }
