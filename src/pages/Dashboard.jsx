@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { Link } from "react-router-dom";
-import { MapPin, Eye, Trash2, Pencil } from "lucide-react";
-
+import { MapPin, Eye, Trash2, Pencil, Plus } from "lucide-react";
+import api from "../api/api";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
 export default function Dashboard() {
   const [ads, setAds] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
   useEffect(() => {
     fetchMyAds();
@@ -17,16 +18,9 @@ export default function Dashboard() {
   const fetchMyAds = async () => {
     try {
       const token = localStorage.getItem("token");
-
-      const response = await axios.get(
-        "https://ustaadji-backend.onrender.com/api/ads/my-ads",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
+      const response = await api.get("/ads/my-ads", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setAds(response.data);
     } catch (error) {
       console.error(error);
@@ -36,26 +30,20 @@ export default function Dashboard() {
   };
 
   const handleDeleteAd = async (id) => {
-  const confirmDelete = window.confirm(
-    "Are you sure you want to delete this ad?"
-  );
-
-  if (!confirmDelete) return;
-
-  try {
-    const token = localStorage.getItem("token");
-
-    await axios.delete(`https://ustaadji-backend.onrender.com/api/ads/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    setAds(ads.filter((ad) => ad.id !== id));
-  } catch (error) {
-    console.error(error);
-  }
-};
+    try {
+      setDeletingId(id);
+      const token = localStorage.getItem("token");
+      await api.delete(`/ads/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setAds(ads.filter((ad) => ad.id !== id));
+      setConfirmDeleteId(null);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-950">
@@ -67,38 +55,44 @@ export default function Dashboard() {
             <p className="text-sm font-black uppercase tracking-[0.3em] text-emerald-500">
               Dashboard
             </p>
-
-            <h1 className="mt-2 text-4xl font-black tracking-tight">
-              My Ads
-            </h1>
+            <h1 className="mt-2 text-4xl font-black tracking-tight">My Ads</h1>
           </div>
 
           <Link
             to="/post-ad"
-            className="rounded-2xl bg-slate-950 px-6 py-3 text-sm font-black text-white hover:bg-slate-800"
+            className="flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 text-sm font-black text-white shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition"
           >
-            + Post New Ad
+            <Plus size={16} />
+            Post New Ad
           </Link>
         </div>
 
         {loading ? (
-          <div className="py-20 text-center">
-            <p className="text-xl font-black">Loading your ads...</p>
+          <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
+                <div className="h-56 w-full animate-pulse bg-slate-200" />
+                <div className="p-5 space-y-3">
+                  <div className="h-4 w-24 animate-pulse rounded-full bg-slate-200" />
+                  <div className="h-6 w-3/4 animate-pulse rounded-xl bg-slate-200" />
+                  <div className="h-7 w-1/3 animate-pulse rounded-xl bg-slate-200" />
+                  <div className="h-4 w-1/4 animate-pulse rounded-xl bg-slate-200" />
+                  <div className="mt-4 h-11 w-full animate-pulse rounded-2xl bg-slate-200" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : ads.length === 0 ? (
           <div className="mt-10 rounded-[2rem] border border-dashed border-slate-300 bg-white p-16 text-center">
-            <h2 className="text-2xl font-black">
-              You haven’t posted any ads yet
-            </h2>
-
-            <p className="mt-3 text-slate-500">
+            <h2 className="text-2xl font-black">You haven't posted any ads yet</h2>
+            <p className="mt-3 font-semibold text-slate-500">
               Start selling by posting your first listing.
             </p>
-
             <Link
               to="/post-ad"
-              className="mt-6 inline-block rounded-2xl bg-emerald-500 px-6 py-3 text-sm font-black text-white hover:bg-emerald-600"
+              className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-6 py-3 text-sm font-black text-white shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition"
             >
+              <Plus size={16} />
               Post Ad
             </Link>
           </div>
@@ -110,6 +104,10 @@ export default function Dashboard() {
                   ? ad.images[0]
                   : "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80";
 
+              const priceText = ad.price && Number(ad.price) > 0
+                ? `₹${Number(ad.price).toLocaleString("en-IN")}`
+                : "Price on request";
+
               return (
                 <div
                   key={ad.id}
@@ -118,7 +116,7 @@ export default function Dashboard() {
                   <img
                     src={imageUrl}
                     alt={ad.title}
-                    className="h-64 w-full object-cover"
+                    className="h-52 w-full object-cover"
                   />
 
                   <div className="p-5">
@@ -126,7 +124,6 @@ export default function Dashboard() {
                       <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700">
                         {ad.category_name}
                       </span>
-
                       <span
                         className={`rounded-full px-3 py-1 text-xs font-black ${
                           ad.status === "active"
@@ -138,41 +135,64 @@ export default function Dashboard() {
                       </span>
                     </div>
 
-                    <h2 className="mt-4 line-clamp-2 text-2xl font-black">
-                      {ad.title}
-                    </h2>
+                    <h2 className="mt-3 line-clamp-2 text-xl font-black">{ad.title}</h2>
 
-                    <p className="mt-3 text-3xl font-black">
-                      ₹{Number(ad.price || 0).toLocaleString("en-IN")}
-                    </p>
+                    <p className="mt-2 text-2xl font-black">{priceText}</p>
 
-                    <div className="mt-4 flex items-center gap-2 text-sm font-bold text-slate-500">
-                      <MapPin size={16} />
+                    <div className="mt-3 flex items-center gap-2 text-sm font-bold text-slate-500">
+                      <MapPin size={14} />
                       {ad.city}
                     </div>
 
-                    <Link
-  to={`/ads/${ad.id}`}
-  state={{ from: "/dashboard", label: "Back to dashboard" }}
-  className="mt-6 flex items-center justify-center gap-2 rounded-2xl bg-slate-950 px-5 py-4 text-sm font-black text-white hover:bg-slate-800"
->
-  <Eye size={18} />
-  View Details
-</Link>
-<Link
-  to={`/edit-ad/${ad.id}`}
-  className="mt-3 flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-4 text-sm font-black text-slate-700 hover:bg-slate-50"
->
-  <Pencil size={18} />
-  Edit Ad
-</Link>
-<button
-  onClick={() => handleDeleteAd(ad.id)}
-  className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-black text-red-600 hover:bg-red-100"
->
-  <Trash2 size={18} />
-  Delete Ad
-</button>
+                    <div className="mt-5 flex flex-col gap-2">
+                      <Link
+                        to={`/ads/${ad.id}`}
+                        state={{ from: "/dashboard", label: "Back to dashboard" }}
+                        className="flex items-center justify-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-black text-white hover:bg-slate-800 transition"
+                      >
+                        <Eye size={16} />
+                        View Details
+                      </Link>
+
+                      <Link
+                        to={`/edit-ad/${ad.id}`}
+                        className="flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-700 hover:bg-slate-50 transition"
+                      >
+                        <Pencil size={16} />
+                        Edit Ad
+                      </Link>
+
+                      {confirmDeleteId === ad.id ? (
+                        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3">
+                          <p className="mb-3 text-center text-sm font-bold text-red-700">
+                            Delete this ad permanently?
+                          </p>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => setConfirmDeleteId(null)}
+                              className="flex-1 rounded-xl border border-slate-200 bg-white py-2 text-sm font-black text-slate-600 hover:bg-slate-50 transition"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              onClick={() => handleDeleteAd(ad.id)}
+                              disabled={deletingId === ad.id}
+                              className="flex-1 rounded-xl bg-red-500 py-2 text-sm font-black text-white hover:bg-red-600 transition disabled:opacity-70"
+                            >
+                              {deletingId === ad.id ? "Deleting..." : "Yes, delete"}
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setConfirmDeleteId(ad.id)}
+                          className="flex items-center justify-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-5 py-3 text-sm font-black text-red-600 hover:bg-red-100 transition"
+                        >
+                          <Trash2 size={16} />
+                          Delete Ad
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               );

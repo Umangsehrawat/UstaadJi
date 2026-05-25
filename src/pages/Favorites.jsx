@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { Heart } from "lucide-react";
+import api from "../api/api";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import ListingCard from "../components/ListingCard";
@@ -15,26 +16,24 @@ export default function Favorites() {
   const fetchFavorites = async () => {
     try {
       const token = localStorage.getItem("token");
-
-      const response = await axios.get("https://ustaadji-backend.onrender.com/api/favorites", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const response = await api.get("/favorites", {
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       const formattedFavorites = response.data.map((ad) => ({
         id: ad.id,
         title: ad.title,
         category: ad.category_name,
-        price: ad.price
-          ? `₹${Number(ad.price).toLocaleString("en-IN")}`
-          : "Price not listed",
+        price:
+          ad.price && Number(ad.price) > 0
+            ? `₹${Number(ad.price).toLocaleString("en-IN")}`
+            : "Price on request",
         location: ad.location ? `${ad.city} • ${ad.location}` : ad.city,
         time: "Saved ad",
         image:
           ad.images && ad.images.length > 0
             ? ad.images[0]
-            : "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=900&q=80",
+            : "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80",
         tag: "Saved",
         is_favorited: true,
       }));
@@ -56,23 +55,32 @@ export default function Favorites() {
           <p className="text-sm font-black uppercase tracking-[0.2em] text-emerald-600">
             Saved ads
           </p>
-
-          <h1 className="mt-2 text-4xl font-black tracking-tight">
-            My Favorites
-          </h1>
-
+          <h1 className="mt-2 text-4xl font-black tracking-tight">My Favorites</h1>
           <p className="mt-3 font-semibold text-slate-500">
             Listings you saved will appear here.
           </p>
         </div>
 
         {loading ? (
-          <p className="text-lg font-black">Loading favorites...</p>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
+                <div className="h-48 w-full animate-pulse bg-slate-200" />
+                <div className="p-5 space-y-3">
+                  <div className="h-4 w-20 animate-pulse rounded-full bg-slate-200" />
+                  <div className="h-5 w-3/4 animate-pulse rounded-xl bg-slate-200" />
+                  <div className="h-6 w-1/3 animate-pulse rounded-xl bg-slate-200" />
+                  <div className="h-4 w-1/4 animate-pulse rounded-xl bg-slate-200" />
+                </div>
+              </div>
+            ))}
+          </div>
         ) : favorites.length === 0 ? (
-          <div className="rounded-[2rem] border border-dashed border-slate-300 bg-white p-14 text-center">
-            <h2 className="text-2xl font-black">No favorites yet</h2>
+          <div className="rounded-[2rem] border border-dashed border-slate-300 bg-white p-16 text-center">
+            <Heart className="mx-auto text-slate-300" size={48} />
+            <h2 className="mt-4 text-2xl font-black">No favorites yet</h2>
             <p className="mt-2 font-semibold text-slate-500">
-              Click the heart icon on listings to save them.
+              Click the heart icon on any listing to save it here.
             </p>
           </div>
         ) : (

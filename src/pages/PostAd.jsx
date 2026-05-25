@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UploadCloud, X, CheckCircle } from "lucide-react";
+import api from "../api/api";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import axios from "axios";
 
 const MAX_IMAGES = 5;
 const MAX_SIZE_MB = 2;
 const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
+const MAX_DESC = 1000;
 
 export default function PostAd() {
   const navigate = useNavigate();
@@ -23,8 +24,8 @@ export default function PostAd() {
   });
 
   const [categories, setCategories] = useState([]);
-  const [images, setImages] = useState([]);       // File objects
-  const [previews, setPreviews] = useState([]);   // Object URLs for preview
+  const [images, setImages] = useState([]);
+  const [previews, setPreviews] = useState([]);
   const [imageError, setImageError] = useState("");
   const [formError, setFormError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -36,21 +37,20 @@ export default function PostAd() {
       navigate("/login");
       return;
     }
-
-    // Fetch categories from backend
-    axios
-      .get("https://ustaadji-backend.onrender.com/api/ads/categories")
+    api
+      .get("/ads/categories")
       .then((res) => setCategories(res.data))
       .catch(() => {});
   }, [navigate]);
 
-  // Clean up object URLs when component unmounts
   useEffect(() => {
     return () => previews.forEach((url) => URL.revokeObjectURL(url));
   }, [previews]);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    if (name === "description" && value.length > MAX_DESC) return;
+    setFormData({ ...formData, [name]: value });
     setFormError("");
   };
 
@@ -58,14 +58,12 @@ export default function PostAd() {
     setImageError("");
     const incoming = Array.from(e.target.files);
 
-    // Check total count
     if (images.length + incoming.length > MAX_IMAGES) {
       setImageError(`You can upload a maximum of ${MAX_IMAGES} images.`);
       e.target.value = "";
       return;
     }
 
-    // Check each file size
     const oversized = incoming.filter((f) => f.size > MAX_SIZE_BYTES);
     if (oversized.length > 0) {
       setImageError(
@@ -101,7 +99,7 @@ export default function PostAd() {
       });
       images.forEach((img) => data.append("images", img));
 
-      await axios.post("https://ustaadji-backend.onrender.com/api/ads", data, {
+      await api.post("/ads", data, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
@@ -129,7 +127,7 @@ export default function PostAd() {
         <div className="flex flex-col items-center justify-center py-32">
           <CheckCircle size={64} className="text-emerald-500" />
           <h2 className="mt-6 text-3xl font-black">Ad published!</h2>
-          <p className="mt-2 text-slate-500 font-semibold">Redirecting you to dashboard...</p>
+          <p className="mt-2 font-semibold text-slate-500">Redirecting you to dashboard...</p>
         </div>
         <Footer />
       </main>
@@ -161,7 +159,6 @@ export default function PostAd() {
           )}
 
           <form onSubmit={handleSubmit} className="grid gap-6">
-
             {/* Title + Category */}
             <div className="grid gap-6 md:grid-cols-2">
               <div>
@@ -174,7 +171,7 @@ export default function PostAd() {
                   value={formData.title}
                   onChange={handleChange}
                   placeholder="e.g. Professional Plumbing Services"
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400"
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400 transition"
                   required
                 />
               </div>
@@ -187,7 +184,7 @@ export default function PostAd() {
                   name="category_id"
                   value={formData.category_id}
                   onChange={handleChange}
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400 bg-white"
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 font-semibold outline-none focus:border-emerald-400 transition"
                   required
                 >
                   <option value="">Select a service</option>
@@ -202,16 +199,21 @@ export default function PostAd() {
 
             {/* Description */}
             <div>
-              <label className="mb-2 block text-sm font-black text-slate-700">
-                Description <span className="text-red-500">*</span>
-              </label>
+              <div className="mb-2 flex items-center justify-between">
+                <label className="text-sm font-black text-slate-700">
+                  Description <span className="text-red-500">*</span>
+                </label>
+                <span className={`text-xs font-semibold ${formData.description.length > MAX_DESC * 0.9 ? "text-red-500" : "text-slate-400"}`}>
+                  {formData.description.length}/{MAX_DESC}
+                </span>
+              </div>
               <textarea
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
                 rows="5"
                 placeholder="Describe your service — experience, what's included, timings, etc."
-                className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400"
+                className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400 transition resize-none"
                 required
               />
             </div>
@@ -219,9 +221,7 @@ export default function PostAd() {
             {/* Price, City, Area, Phone */}
             <div className="grid gap-6 sm:grid-cols-2">
               <div>
-                <label className="mb-2 block text-sm font-black text-slate-700">
-                  Price (₹)
-                </label>
+                <label className="mb-2 block text-sm font-black text-slate-700">Price (₹)</label>
                 <input
                   type="number"
                   name="price"
@@ -229,7 +229,7 @@ export default function PostAd() {
                   onChange={handleChange}
                   placeholder="e.g. 500"
                   min="0"
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400"
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400 transition"
                 />
               </div>
 
@@ -243,7 +243,7 @@ export default function PostAd() {
                   value={formData.city}
                   onChange={handleChange}
                   placeholder="e.g. Delhi"
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400"
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400 transition"
                   required
                 />
               </div>
@@ -258,7 +258,7 @@ export default function PostAd() {
                   value={formData.location}
                   onChange={handleChange}
                   placeholder="e.g. Rohini, Sector 7"
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400"
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400 transition"
                 />
               </div>
 
@@ -266,7 +266,7 @@ export default function PostAd() {
                 <label className="mb-2 block text-sm font-black text-slate-700">
                   Contact phone
                 </label>
-                <div className="flex overflow-hidden rounded-2xl border border-slate-200 focus-within:border-emerald-400">
+                <div className="flex overflow-hidden rounded-2xl border border-slate-200 focus-within:border-emerald-400 transition">
                   <span className="flex items-center bg-slate-50 px-4 text-sm font-bold text-slate-500 border-r border-slate-200">
                     +91
                   </span>
@@ -292,7 +292,6 @@ export default function PostAd() {
                 </span>
               </label>
 
-              {/* Previews */}
               {previews.length > 0 && (
                 <div className="mb-4 flex flex-wrap gap-3">
                   {previews.map((src, i) => (

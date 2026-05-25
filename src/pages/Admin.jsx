@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Users, FileText, MessageSquare, Flag, Trash2, X, ShieldAlert, MapPin, ExternalLink } from "lucide-react";
+import { Users, FileText, MessageSquare, Flag, Trash2, X, ShieldAlert, MapPin, ExternalLink, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -11,6 +11,7 @@ export default function Admin() {
   const [stats, setStats] = useState(null);
   const [reports, setReports] = useState([]);
   const [allAds, setAllAds] = useState([]);
+  const [adSearch, setAdSearch] = useState("");
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("overview");
 
@@ -56,6 +57,16 @@ export default function Admin() {
       alert("Failed to dismiss report");
     }
   };
+
+  const filteredAds = allAds.filter((ad) => {
+    const q = adSearch.toLowerCase();
+    return (
+      (ad.title || "").toLowerCase().includes(q) ||
+      (ad.seller_name || "").toLowerCase().includes(q) ||
+      (ad.city || "").toLowerCase().includes(q) ||
+      (ad.category_name || "").toLowerCase().includes(q)
+    );
+  });
 
   const statCards = stats
     ? [
@@ -116,7 +127,7 @@ export default function Admin() {
               {[
                 { key: "overview", label: "Overview" },
                 { key: "reports", label: `Reports (${reports.length})` },
-                { key: "ads", label: `Manage Ads (${allAds.length})` },
+                { key: "ads", label: `Manage Ads (${adSearch ? filteredAds.length + "/" : ""}${allAds.length})` },
               ].map((tab) => (
                 <button
                   key={tab.key}
@@ -182,15 +193,36 @@ export default function Admin() {
             {/* Manage Ads Tab */}
             {activeTab === "ads" && (
               <div className="mt-8">
-                {allAds.length === 0 ? (
+                {/* Search bar */}
+                <div className="mb-5 flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+                  <Search size={16} className="shrink-0 text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="Search by title, seller, city or category..."
+                    value={adSearch}
+                    onChange={(e) => setAdSearch(e.target.value)}
+                    className="flex-1 text-sm font-semibold outline-none text-slate-900 placeholder:text-slate-400"
+                  />
+                  {adSearch && (
+                    <button onClick={() => setAdSearch("")} className="text-slate-400 hover:text-slate-600">
+                      <X size={14} />
+                    </button>
+                  )}
+                </div>
+
+                {filteredAds.length === 0 ? (
                   <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-14 text-center">
                     <FileText className="mx-auto text-slate-300" size={40} />
-                    <h3 className="mt-4 text-xl font-black">No ads found</h3>
-                    <p className="mt-2 font-semibold text-slate-500">No listings have been posted yet.</p>
+                    <h3 className="mt-4 text-xl font-black">
+                      {adSearch ? "No ads match your search" : "No ads found"}
+                    </h3>
+                    <p className="mt-2 font-semibold text-slate-500">
+                      {adSearch ? "Try a different search term." : "No listings have been posted yet."}
+                    </p>
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {allAds.map((ad) => (
+                    {filteredAds.map((ad) => (
                       <div key={ad.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                         <div className="flex items-start gap-4">
                           {/* Thumbnail */}

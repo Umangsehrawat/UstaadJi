@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../api/api";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 function validatePhone(phone) {
   return /^[6-9]\d{9}$/.test(phone);
@@ -34,17 +36,17 @@ function Register() {
     e.preventDefault();
 
     if (!validatePhone(formData.phone)) {
-      setPhoneError("Enter a valid 10-digit Indian mobile number (starts with 6-9)");
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      setPasswordError("Passwords do not match");
+      setPhoneError("Enter a valid 10-digit Indian mobile number (starts with 6–9)");
       return;
     }
 
     if (formData.password.length < 6) {
       setPasswordError("Password must be at least 6 characters");
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setPasswordError("Passwords do not match");
       return;
     }
 
@@ -63,134 +65,141 @@ function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f5f7fa] flex flex-col">
-      <header className="bg-white border-b border-gray-200 px-8 py-5 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-[#00072d] flex items-center justify-center text-white font-bold text-2xl">
-            U
+    <main className="min-h-screen bg-slate-50 flex flex-col">
+      <Navbar />
+
+      <div className="flex-1 flex items-center justify-center px-4 py-16">
+        <div className="w-full max-w-md">
+          <div className="mb-8 text-center">
+            <p className="text-sm font-black uppercase tracking-[0.2em] text-emerald-600 mb-2">
+              Get Started
+            </p>
+            <h1 className="text-4xl font-black text-slate-900 tracking-tight">
+              Create your account
+            </h1>
+            <p className="mt-2 font-semibold text-slate-500">
+              Join thousands of service providers on Ustaadji
+            </p>
           </div>
-          <div>
-            <h1 className="font-black text-2xl text-[#00072d]">Ustaadji</h1>
-            <p className="text-sm text-gray-500">India's local marketplace</p>
-          </div>
-        </Link>
-      </header>
 
-      <div className="flex-1 flex items-center justify-center px-6 py-16">
-        <div className="bg-white rounded-[32px] shadow-xl border border-gray-200 p-10 w-full max-w-xl">
-          <p className="text-[#00b67a] font-bold tracking-[4px] uppercase text-sm mb-4">
-            Get Started
-          </p>
+          <div className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-xl">
+            {error && (
+              <div className="mb-6 rounded-2xl bg-red-50 border border-red-200 px-5 py-4 text-sm font-semibold text-red-600">
+                {error}
+              </div>
+            )}
 
-          <h2 className="text-5xl font-black text-[#00072d] leading-tight mb-10">
-            Create your account
-          </h2>
-
-          {error && (
-            <div className="mb-6 rounded-2xl bg-red-50 border border-red-200 px-5 py-4 text-sm font-semibold text-red-600">
-              {error}
-            </div>
-          )}
-
-          <form className="space-y-5" onSubmit={handleSubmit}>
-            <input
-              type="text"
-              name="name"
-              placeholder="Full name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full border border-gray-200 rounded-2xl px-6 py-5 text-lg outline-none focus:border-emerald-500"
-              required
-            />
-
-            <div>
-              <div className="flex overflow-hidden rounded-2xl border border-gray-200 focus-within:border-emerald-500">
-                <span className="flex items-center bg-slate-50 px-4 text-sm font-bold text-slate-500 border-r border-gray-200">
-                  +91
-                </span>
+            <form className="space-y-5" onSubmit={handleSubmit}>
+              <div>
+                <label className="mb-2 block text-sm font-black text-slate-700">
+                  Full name <span className="text-red-500">*</span>
+                </label>
                 <input
-                  type="tel"
-                  name="phone"
-                  placeholder="Phone number"
-                  value={formData.phone}
+                  type="text"
+                  name="name"
+                  placeholder="Your full name"
+                  value={formData.name}
                   onChange={handleChange}
-                  maxLength={10}
-                  className="w-full px-5 py-5 text-lg outline-none"
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400 transition text-slate-900"
                   required
                 />
               </div>
-              {phoneError && (
-                <p className="mt-2 text-sm font-semibold text-red-500">
-                  {phoneError}
-                </p>
-              )}
-            </div>
 
-            <input
-              type="text"
-              name="city"
-              placeholder="City"
-              value={formData.city}
-              onChange={handleChange}
-              className="w-full border border-gray-200 rounded-2xl px-6 py-5 text-lg outline-none focus:border-emerald-500"
-            />
+              <div>
+                <label className="mb-2 block text-sm font-black text-slate-700">
+                  Phone number <span className="text-red-500">*</span>
+                </label>
+                <div className="flex overflow-hidden rounded-2xl border border-slate-200 focus-within:border-emerald-400 transition">
+                  <span className="flex items-center bg-slate-50 px-4 text-sm font-bold text-slate-500 border-r border-slate-200">
+                    +91
+                  </span>
+                  <input
+                    type="tel"
+                    name="phone"
+                    placeholder="10-digit mobile number"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    maxLength={10}
+                    className="w-full px-4 py-4 font-semibold outline-none text-slate-900"
+                    required
+                  />
+                </div>
+                {phoneError && (
+                  <p className="mt-2 text-sm font-semibold text-red-500">{phoneError}</p>
+                )}
+              </div>
 
-            <div>
-              <input
-                type="password"
-                name="password"
-                placeholder="Password (min. 6 characters)"
-                value={formData.password}
-                onChange={handleChange}
-                className="w-full border border-gray-200 rounded-2xl px-6 py-5 text-lg outline-none focus:border-emerald-500"
-                required
-              />
-            </div>
+              <div>
+                <label className="mb-2 block text-sm font-black text-slate-700">
+                  City
+                </label>
+                <input
+                  type="text"
+                  name="city"
+                  placeholder="e.g. Delhi, Mumbai, Bangalore"
+                  value={formData.city}
+                  onChange={handleChange}
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400 transition text-slate-900"
+                />
+              </div>
 
-            <div>
-              <input
-                type="password"
-                name="confirmPassword"
-                placeholder="Confirm password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className="w-full border border-gray-200 rounded-2xl px-6 py-5 text-lg outline-none focus:border-emerald-500"
-                required
-              />
-              {passwordError && (
-                <p className="mt-2 text-sm font-semibold text-red-500">
-                  {passwordError}
-                </p>
-              )}
-            </div>
+              <div>
+                <label className="mb-2 block text-sm font-black text-slate-700">
+                  Password <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  placeholder="Minimum 6 characters"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400 transition text-slate-900"
+                  required
+                />
+              </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-[#00072d] hover:bg-black text-white py-5 rounded-2xl font-bold text-xl transition"
-            >
-              {loading ? "Creating account..." : "Create Account"}
-            </button>
-          </form>
+              <div>
+                <label className="mb-2 block text-sm font-black text-slate-700">
+                  Confirm password <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  placeholder="Re-enter your password"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400 transition text-slate-900"
+                  required
+                />
+                {passwordError && (
+                  <p className="mt-2 text-sm font-semibold text-red-500">{passwordError}</p>
+                )}
+              </div>
 
-          <p className="text-center text-gray-500 mt-8">
-            Already have an account?{" "}
-            <Link to="/login" className="text-[#00b67a] font-bold">
-              Login
-            </Link>
-          </p>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full rounded-2xl bg-emerald-500 py-4 font-black text-lg text-white shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-600 disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                {loading ? "Creating account..." : "Create Account"}
+              </button>
+            </form>
+
+            <p className="mt-6 text-center text-sm font-semibold text-slate-500">
+              Already have an account?{" "}
+              <Link
+                to="/login"
+                className="font-black text-emerald-600 hover:text-emerald-700 transition"
+              >
+                Login
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
 
-      <footer className="border-t border-gray-200 px-10 py-6 text-gray-500 flex justify-between text-sm">
-        <p>© 2026 Ustaadji.in — India's local marketplace.</p>
-        <div className="flex gap-6">
-          <a href="#">Privacy</a>
-          <a href="#">Terms</a>
-          <a href="#">Support</a>
-        </div>
-      </footer>
-    </div>
+      <Footer />
+    </main>
   );
 }
 

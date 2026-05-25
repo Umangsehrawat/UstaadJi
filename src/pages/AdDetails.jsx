@@ -1,15 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useLocation, useNavigate } from "react-router-dom";
-import {
-  MapPin,
-  ArrowLeft,
-  Phone,
-  ShieldCheck,
-  Flag,
-} from "lucide-react";
-
-import axios from "axios";
-
+import { MapPin, ArrowLeft, Phone, ShieldCheck, Flag, X } from "lucide-react";
+import api from "../api/api";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
@@ -20,13 +12,18 @@ export default function AdDetails() {
 
   const [ad, setAd] = useState(null);
   const [loading, setLoading] = useState(true);
-
   const [selectedImage, setSelectedImage] = useState("");
 
+  // Report modal
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState("");
   const [reportMessage, setReportMessage] = useState("");
   const [reportLoading, setReportLoading] = useState(false);
+  const [reportError, setReportError] = useState("");
+  const [reportSuccess, setReportSuccess] = useState(false);
+
+  // Message error banner
+  const [messageError, setMessageError] = useState("");
 
   const backTo = location.state?.from || "/";
   const backLabel = location.state?.label || "Back to listings";
@@ -34,13 +31,9 @@ export default function AdDetails() {
   useEffect(() => {
     const fetchAd = async () => {
       try {
-        const response = await axios.get(
-          `https://ustaadji-backend.onrender.com/api/ads/${id}`
-        );
-
+        const response = await api.get(`/ads/${id}`);
         const fetchedAd = response.data;
         setAd(fetchedAd);
-
         if (fetchedAd.images && fetchedAd.images.length > 0) {
           setSelectedImage(fetchedAd.images[0]);
         }
@@ -50,92 +43,74 @@ export default function AdDetails() {
         setLoading(false);
       }
     };
-
     fetchAd();
   }, [id]);
 
   const fallbackImage =
-    "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=900&q=80";
+    "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=900&q=80";
 
   const imageUrl = selectedImage || fallbackImage;
+  const imageList = ad?.images && ad.images.length > 0 ? ad.images : [fallbackImage];
 
-  const imageList =
-    ad?.images && ad.images.length > 0
-      ? ad.images
-      : [fallbackImage];
-
-  const priceText = ad?.price
+  const priceText = ad?.price && Number(ad.price) > 0
     ? `₹${Number(ad.price).toLocaleString("en-IN")}`
-    : "Price not listed";
+    : "Price on request";
 
   const handleReportSubmit = async () => {
+    setReportError("");
+    if (!reportReason) {
+      setReportError("Please select a reason for the report.");
+      return;
+    }
     try {
-      if (!reportReason) return alert("Please select a reason");
-
       setReportLoading(true);
-
       const token = localStorage.getItem("token");
-
-      await axios.post(
-        "https://ustaadji-backend.onrender.com/api/reports",
-        {
-          ad_id: ad.id,
-          reason: reportReason,
-          message: reportMessage,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      await api.post(
+        "/reports",
+        { ad_id: ad.id, reason: reportReason, message: reportMessage },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-
-      alert("Report submitted successfully");
-      setShowReportModal(false);
+      setReportSuccess(true);
       setReportReason("");
       setReportMessage("");
     } catch (error) {
       console.error(error);
-      alert("Failed to submit report");
+      setReportError("Failed to submit report. Please try again.");
     } finally {
       setReportLoading(false);
     }
   };
 
+  const handleCloseReport = () => {
+    setShowReportModal(false);
+    setReportError("");
+    setReportSuccess(false);
+    setReportReason("");
+    setReportMessage("");
+  };
+
   const handleMessageSeller = async () => {
+    setMessageError("");
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user?.id === ad.user_id) {
+      setMessageError("You can't message yourself on your own ad.");
+      return;
+    }
     try {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        alert("Please login first to message seller.");
-        navigate("/login");
-        return;
-      }
-
-      const user = JSON.parse(localStorage.getItem("user"));
-
-      if (user?.id === ad.user_id) {
-        alert("You cannot message yourself on your own ad.");
-        return;
-      }
-
-      const response = await axios.post(
-        "https://ustaadji-backend.onrender.com/api/chat/start",
-        {
-          ad_id: ad.id,
-          seller_id: ad.user_id,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const response = await api.post(
+        "/chat/start",
+        { ad_id: ad.id, seller_id: ad.user_id },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-
       navigate(`/chat/${response.data.id}`);
     } catch (error) {
       console.error(error);
-      alert("Failed to start chat");
+      setMessageError("Failed to start chat. Please try again.");
     }
   };
 
@@ -144,7 +119,18 @@ export default function AdDetails() {
       <main className="min-h-screen bg-slate-50 text-slate-950">
         <Navbar />
         <section className="mx-auto max-w-7xl px-4 py-20">
-          <p className="text-xl font-black">Loading ad...</p>
+          <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
+            <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
+              <div className="h-[420px] w-full animate-pulse bg-slate-200" />
+              <div className="p-8 space-y-4">
+                <div className="h-5 w-24 animate-pulse rounded-full bg-slate-200" />
+                <div className="h-10 w-3/4 animate-pulse rounded-xl bg-slate-200" />
+                <div className="h-8 w-1/4 animate-pulse rounded-xl bg-slate-200" />
+                <div className="h-4 w-1/3 animate-pulse rounded-xl bg-slate-200" />
+              </div>
+            </div>
+            <div className="h-80 animate-pulse rounded-[2rem] bg-slate-200" />
+          </div>
         </section>
         <Footer />
       </main>
@@ -155,9 +141,10 @@ export default function AdDetails() {
     return (
       <main className="min-h-screen bg-slate-50 text-slate-950">
         <Navbar />
-        <section className="mx-auto max-w-7xl px-4 py-20">
+        <section className="mx-auto max-w-7xl px-4 py-20 text-center">
           <h1 className="text-3xl font-black">Ad not found</h1>
-          <Link to="/" className="mt-6 inline-block font-bold text-emerald-600">
+          <p className="mt-3 font-semibold text-slate-500">This listing may have been removed.</p>
+          <Link to="/" className="mt-6 inline-block rounded-2xl bg-emerald-500 px-6 py-3 font-black text-white hover:bg-emerald-600 transition">
             Go back home
           </Link>
         </section>
@@ -173,13 +160,14 @@ export default function AdDetails() {
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <Link
           to={backTo}
-          className="mb-6 inline-flex items-center gap-2 text-sm font-bold text-slate-600 hover:text-slate-950"
+          className="mb-6 inline-flex items-center gap-2 text-sm font-bold text-slate-600 hover:text-slate-950 transition"
         >
           <ArrowLeft size={18} />
           {backLabel}
         </Link>
 
         <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
+          {/* Main content */}
           <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
             <img
               src={imageUrl}
@@ -193,10 +181,8 @@ export default function AdDetails() {
                   <button
                     key={img}
                     onClick={() => setSelectedImage(img)}
-                    className={`h-20 w-24 shrink-0 overflow-hidden rounded-2xl border-2 ${
-                      selectedImage === img
-                        ? "border-emerald-500"
-                        : "border-slate-200"
+                    className={`h-20 w-24 shrink-0 overflow-hidden rounded-2xl border-2 transition ${
+                      selectedImage === img ? "border-emerald-500" : "border-slate-200"
                     }`}
                   >
                     <img
@@ -221,37 +207,43 @@ export default function AdDetails() {
               <p className="mt-4 text-4xl font-black">{priceText}</p>
 
               <div className="mt-5 flex items-center gap-2 text-sm font-bold text-slate-500">
-                <MapPin size={18} />
-                {ad.city}
-                {ad.location ? ` • ${ad.location}` : ""}
+                <MapPin size={16} />
+                {ad.city}{ad.location ? ` • ${ad.location}` : ""}
               </div>
 
               <div className="mt-8">
                 <h2 className="text-xl font-black">Description</h2>
-                <p className="mt-3 leading-7 text-slate-600">
+                <p className="mt-3 leading-7 text-slate-600 whitespace-pre-line">
                   {ad.description}
                 </p>
               </div>
             </div>
           </div>
 
+          {/* Sidebar */}
           <aside className="h-fit rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="text-xl font-black">Seller information</h2>
 
-            <div className="mt-5 rounded-3xl bg-slate-50 p-5">
+            <div className="mt-4 rounded-3xl bg-slate-50 p-5">
               <p className="text-sm font-bold text-slate-500">Seller</p>
               <p className="mt-1 text-lg font-black">
                 {ad.seller_name || "Ustaadji User"}
               </p>
-              <p className="mt-1 text-sm font-semibold text-slate-500">
-                Verified seller
+              <p className="mt-1 text-sm font-semibold text-slate-400">
+                Registered seller
               </p>
             </div>
 
+            {messageError && (
+              <div className="mt-4 rounded-2xl bg-red-50 border border-red-200 px-4 py-3 text-sm font-semibold text-red-600">
+                {messageError}
+              </div>
+            )}
+
             {ad.contact_phone && (
               <a
-                href={`tel:${ad.contact_phone}`}
-                className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-5 py-4 text-sm font-black text-white shadow-lg shadow-emerald-500/20 hover:bg-emerald-600"
+                href={`tel:+91${ad.contact_phone}`}
+                className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-5 py-4 text-sm font-black text-white shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition"
               >
                 <Phone size={18} />
                 Call Seller
@@ -260,78 +252,119 @@ export default function AdDetails() {
 
             <button
               onClick={handleMessageSeller}
-              className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-5 py-4 text-sm font-black text-white hover:bg-slate-800"
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-5 py-4 text-sm font-black text-white hover:bg-slate-800 transition"
             >
               Message Seller
             </button>
 
             <div className="mt-6 rounded-3xl border border-emerald-100 bg-emerald-50 p-5">
               <div className="flex items-center gap-2 font-black text-emerald-700">
-                <ShieldCheck size={19} />
+                <ShieldCheck size={18} />
                 Safety tips
               </div>
-
               <ul className="mt-3 space-y-2 text-sm font-semibold text-emerald-900">
                 <li>Meet in a public place.</li>
-                <li>Check item before paying.</li>
+                <li>Check work quality before paying.</li>
                 <li>Never send advance money blindly.</li>
               </ul>
             </div>
 
             <button
               onClick={() => setShowReportModal(true)}
-              className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 px-5 py-4 text-sm font-black text-slate-600 hover:bg-slate-50 hover:text-red-500"
+              className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 px-5 py-4 text-sm font-black text-slate-600 hover:bg-slate-50 hover:text-red-500 transition"
             >
-              <Flag size={18} />
+              <Flag size={16} />
               Report this ad
             </button>
           </aside>
         </div>
       </section>
 
+      {/* Report modal */}
       {showReportModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
           <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
-            <h2 className="mb-4 text-2xl font-black text-slate-900">
-              Report Listing
-            </h2>
-
-            <select
-              value={reportReason}
-              onChange={(e) => setReportReason(e.target.value)}
-              className="mb-4 w-full rounded-xl border border-slate-200 p-3 outline-none focus:border-emerald-500"
-            >
-              <option value="">Select reason</option>
-              <option value="Scam">Scam</option>
-              <option value="Fake Product">Fake Product</option>
-              <option value="Spam">Spam</option>
-              <option value="Inappropriate">Inappropriate</option>
-            </select>
-
-            <textarea
-              rows="4"
-              placeholder="Additional details..."
-              value={reportMessage}
-              onChange={(e) => setReportMessage(e.target.value)}
-              className="mb-4 w-full rounded-xl border border-slate-200 p-3 outline-none focus:border-emerald-500"
-            />
-
-            <div className="flex gap-3">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-2xl font-black text-slate-900">Report Listing</h2>
               <button
-                onClick={() => setShowReportModal(false)}
-                className="flex-1 rounded-xl border border-slate-200 py-3 font-semibold"
+                onClick={handleCloseReport}
+                className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-slate-100 transition"
               >
-                Cancel
-              </button>
-
-              <button
-                onClick={handleReportSubmit}
-                disabled={reportLoading}
-                className="flex-1 rounded-xl bg-red-500 py-3 font-semibold text-white hover:bg-red-600"
-              >
-                {reportLoading ? "Submitting..." : "Submit"}
+                <X size={16} />
               </button>
             </div>
+
+            {reportSuccess ? (
+              <div className="py-6 text-center">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100">
+                  <ShieldCheck size={26} className="text-emerald-600" />
+                </div>
+                <h3 className="text-xl font-black text-slate-900">Report submitted</h3>
+                <p className="mt-2 font-semibold text-slate-500">
+                  Thank you. Our team will review this listing.
+                </p>
+                <button
+                  onClick={handleCloseReport}
+                  className="mt-6 w-full rounded-2xl bg-slate-950 py-3 font-black text-white hover:bg-slate-800 transition"
+                >
+                  Close
+                </button>
+              </div>
+            ) : (
+              <>
+                {reportError && (
+                  <div className="mb-4 rounded-2xl bg-red-50 border border-red-200 px-4 py-3 text-sm font-semibold text-red-600">
+                    {reportError}
+                  </div>
+                )}
+
+                <div className="mb-4">
+                  <label className="mb-2 block text-sm font-black text-slate-700">
+                    Reason <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={reportReason}
+                    onChange={(e) => setReportReason(e.target.value)}
+                    className="w-full rounded-2xl border border-slate-200 p-3 font-semibold outline-none focus:border-emerald-400 transition"
+                  >
+                    <option value="">Select a reason</option>
+                    <option value="Scam">Scam</option>
+                    <option value="Fake Product">Fake / Misleading</option>
+                    <option value="Spam">Spam</option>
+                    <option value="Inappropriate">Inappropriate content</option>
+                  </select>
+                </div>
+
+                <div className="mb-5">
+                  <label className="mb-2 block text-sm font-black text-slate-700">
+                    Additional details
+                  </label>
+                  <textarea
+                    rows="3"
+                    placeholder="Tell us more about the issue..."
+                    value={reportMessage}
+                    onChange={(e) => setReportMessage(e.target.value)}
+                    className="w-full rounded-2xl border border-slate-200 p-3 font-semibold outline-none focus:border-emerald-400 transition resize-none"
+                  />
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleCloseReport}
+                    className="flex-1 rounded-2xl border border-slate-200 py-3 font-black text-slate-600 hover:bg-slate-50 transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleReportSubmit}
+                    disabled={reportLoading}
+                    className="flex-1 rounded-2xl bg-red-500 py-3 font-black text-white hover:bg-red-600 transition disabled:opacity-70"
+                  >
+                    {reportLoading ? "Submitting..." : "Submit Report"}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

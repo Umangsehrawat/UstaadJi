@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { ArrowLeft, CheckCircle } from "lucide-react";
-import axios from "axios";
+import api from "../api/api";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
-const API = "https://ustaadji-backend.onrender.com/api";
+const MAX_DESC = 1000;
 
 export default function EditAd() {
   const { id } = useParams();
@@ -31,8 +31,8 @@ export default function EditAd() {
     const init = async () => {
       try {
         const [adRes, catRes] = await Promise.all([
-          axios.get(`${API}/ads/${id}`),
-          axios.get(`${API}/ads/categories`),
+          api.get(`/ads/${id}`),
+          api.get("/ads/categories"),
         ]);
 
         const ad = adRes.data;
@@ -56,7 +56,9 @@ export default function EditAd() {
   }, [id]);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    if (name === "description" && value.length > MAX_DESC) return;
+    setFormData({ ...formData, [name]: value });
     setError("");
   };
 
@@ -66,7 +68,7 @@ export default function EditAd() {
     try {
       setSaving(true);
       const token = localStorage.getItem("token");
-      await axios.put(`${API}/ads/${id}`, formData, {
+      await api.put(`/ads/${id}`, formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setSuccess(true);
@@ -82,8 +84,12 @@ export default function EditAd() {
     return (
       <main className="min-h-screen bg-slate-50 text-slate-950">
         <Navbar />
-        <section className="mx-auto max-w-3xl px-4 py-20 text-center">
-          <p className="text-xl font-black">Loading ad...</p>
+        <section className="mx-auto max-w-3xl px-4 py-14">
+          <div className="space-y-4">
+            <div className="h-6 w-32 animate-pulse rounded-xl bg-slate-200" />
+            <div className="h-10 w-2/3 animate-pulse rounded-2xl bg-slate-200" />
+            <div className="mt-8 h-96 w-full animate-pulse rounded-[2rem] bg-slate-200" />
+          </div>
         </section>
         <Footer />
       </main>
@@ -109,13 +115,18 @@ export default function EditAd() {
       <Navbar />
 
       <section className="mx-auto max-w-3xl px-4 py-14 sm:px-6 lg:px-8">
-        <Link to="/dashboard" className="mb-8 inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-slate-900">
+        <Link
+          to="/dashboard"
+          className="mb-8 inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-slate-900 transition"
+        >
           <ArrowLeft size={16} />
           Back to Dashboard
         </Link>
 
         <div className="mb-8">
-          <p className="text-sm font-black uppercase tracking-[0.2em] text-emerald-600">Edit listing</p>
+          <p className="text-sm font-black uppercase tracking-[0.2em] text-emerald-600">
+            Edit listing
+          </p>
           <h1 className="mt-2 text-4xl font-black tracking-tight">Update your ad</h1>
         </div>
 
@@ -137,7 +148,7 @@ export default function EditAd() {
                   name="title"
                   value={formData.title}
                   onChange={handleChange}
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400"
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400 transition"
                   required
                 />
               </div>
@@ -150,7 +161,7 @@ export default function EditAd() {
                   name="category_id"
                   value={formData.category_id}
                   onChange={handleChange}
-                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 font-semibold outline-none focus:border-emerald-400"
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 font-semibold outline-none focus:border-emerald-400 transition"
                   required
                 >
                   <option value="">Select a service</option>
@@ -162,15 +173,20 @@ export default function EditAd() {
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-black text-slate-700">
-                Description <span className="text-red-500">*</span>
-              </label>
+              <div className="mb-2 flex items-center justify-between">
+                <label className="text-sm font-black text-slate-700">
+                  Description <span className="text-red-500">*</span>
+                </label>
+                <span className={`text-xs font-semibold ${formData.description.length > MAX_DESC * 0.9 ? "text-red-500" : "text-slate-400"}`}>
+                  {formData.description.length}/{MAX_DESC}
+                </span>
+              </div>
               <textarea
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
                 rows="5"
-                className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400"
+                className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400 transition resize-none"
                 required
               />
             </div>
@@ -185,19 +201,21 @@ export default function EditAd() {
                   onChange={handleChange}
                   placeholder="e.g. 500"
                   min="0"
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400"
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400 transition"
                 />
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-black text-slate-700">City <span className="text-red-500">*</span></label>
+                <label className="mb-2 block text-sm font-black text-slate-700">
+                  City <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="text"
                   name="city"
                   value={formData.city}
                   onChange={handleChange}
                   placeholder="e.g. Delhi"
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400"
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400 transition"
                   required
                 />
               </div>
@@ -210,13 +228,13 @@ export default function EditAd() {
                   value={formData.location}
                   placeholder="e.g. Rohini, Sector 7"
                   onChange={handleChange}
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400"
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-4 font-semibold outline-none focus:border-emerald-400 transition"
                 />
               </div>
 
               <div>
                 <label className="mb-2 block text-sm font-black text-slate-700">Contact phone</label>
-                <div className="flex overflow-hidden rounded-2xl border border-slate-200 focus-within:border-emerald-400">
+                <div className="flex overflow-hidden rounded-2xl border border-slate-200 focus-within:border-emerald-400 transition">
                   <span className="flex items-center bg-slate-50 px-4 text-sm font-bold text-slate-500 border-r border-slate-200">+91</span>
                   <input
                     type="tel"
