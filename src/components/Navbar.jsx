@@ -59,13 +59,13 @@ function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-100 bg-white/95 shadow-sm backdrop-blur">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
 
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2.5">
+        <Link to="/" className="flex items-center gap-3">
           {logoError ? (
             <div
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-xl font-black text-white shadow"
+              className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl text-2xl font-black text-white shadow"
               style={{ backgroundColor: "#152e4c" }}
             >
               U
@@ -74,12 +74,12 @@ function Navbar() {
             <img
               src="/logo-icon.png"
               alt="Ustaadji"
-              className="h-12 w-12 object-contain"
+              className="h-16 w-16 object-contain"
               onError={() => setLogoError(true)}
             />
           )}
           <div className="hidden sm:block">
-            <h1 className="text-lg font-black leading-none">
+            <h1 className="text-2xl font-black leading-none">
               <span style={{ color: "#152e4c" }}>Ustaad</span>
               <span style={{ color: "#fd5609" }}>ji</span>
             </h1>
