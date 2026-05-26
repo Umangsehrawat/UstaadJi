@@ -3,10 +3,37 @@ const pool = require("../config/db");
 
 exports.getCategories = async (req, res) => {
   try {
-    const result = await pool.query(
-      `SELECT id, name FROM categories ORDER BY name`
-    );
-    res.json(result.rows);
+    const preferredOrder = [
+      "Appliance Repair",
+      "Brick & Masonry",
+      "Carpentry & Woodwork",
+      "Electrician",
+      "Excavation & Demolition",
+      "Air Conditioning",
+      "Painters & Painting",
+      "Plumbing",
+      "Renovations",
+      "Welding",
+      "Windows & Doors",
+      "Deep Cleaning",
+      "Marble & Tilework",
+      "Wifi / CCTV / Smart Door",
+      "Other Services",
+    ];
+
+    const result = await pool.query(`SELECT id, name FROM categories`);
+
+    const sorted = result.rows.sort((a, b) => {
+      const ai = preferredOrder.indexOf(a.name);
+      const bi = preferredOrder.indexOf(b.name);
+      // Known categories in defined order, unknown ones go to the end
+      if (ai === -1 && bi === -1) return a.name.localeCompare(b.name);
+      if (ai === -1) return 1;
+      if (bi === -1) return -1;
+      return ai - bi;
+    });
+
+    res.json(sorted);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Failed to fetch categories" });
