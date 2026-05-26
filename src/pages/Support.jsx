@@ -25,7 +25,7 @@ const faqs = [
   },
   {
     q: "How do I change my password?",
-    a: "Password reset is currently being built. Please contact us at support@ustaadji.in and we will help you reset your password manually.",
+    a: "Password reset is currently being built. Please contact us at ustaadji.info@gmail.com and we will help you reset your password manually.",
   },
   {
     q: "Can I edit my ad after posting?",
@@ -52,14 +52,14 @@ export default function Support() {
         {/* Contact cards */}
         <div className="mt-10 grid gap-4 sm:grid-cols-3">
           <a
-            href="mailto:support@ustaadji.in"
+            href="mailto:ustaadji.info@gmail.com"
             className="flex flex-col items-center gap-3 rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm transition hover:border-emerald-300 hover:shadow-md"
           >
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
               <Mail size={22} />
             </div>
             <h3 className="font-black text-slate-900">Email us</h3>
-            <p className="text-sm font-semibold text-emerald-600">support@ustaadji.in</p>
+            <p className="text-sm font-semibold text-emerald-600">ustaadji.info@gmail.com</p>
           </a>
 
           <div className="flex flex-col items-center gap-3 rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm">

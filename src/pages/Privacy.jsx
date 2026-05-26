@@ -34,11 +34,11 @@ export default function Privacy() {
             },
             {
               title: "6. Your Rights",
-              body: "You can delete your ads at any time from your Dashboard. To request deletion of your account and all associated data, contact us at support@ustaadji.in and we will process your request within 7 business days.",
+              body: "You can delete your ads at any time from your Dashboard. To request deletion of your account and all associated data, contact us at ustaadji.info@gmail.com and we will process your request within 7 business days.",
             },
             {
               title: "7. Contact",
-              body: "For any privacy-related questions, email us at support@ustaadji.in.",
+              body: "For any privacy-related questions, email us at ustaadji.info@gmail.com.",
             },
           ].map((section) => (
             <div key={section.title}>

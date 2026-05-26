@@ -46,7 +46,7 @@ export default function Terms() {
             },
             {
               title: "9. Contact",
-              body: "For questions about these terms, contact us at support@ustaadji.in.",
+              body: "For questions about these terms, contact us at ustaadji.info@gmail.com.",
             },
           ].map((section) => (
             <div key={section.title}>

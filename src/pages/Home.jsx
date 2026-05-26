@@ -266,7 +266,7 @@ function SafetySection() {
 
         <p className="mt-10 text-center text-sm font-semibold text-slate-500">
           Something wrong?{" "}
-          <a href="mailto:support@ustaadji.in" className="text-emerald-400 hover:underline">
+          <a href="mailto:ustaadji.info@gmail.com" className="text-emerald-400 hover:underline">
             Contact our support team
           </a>
         </p>
@@ -427,8 +427,6 @@ export default function HomePage() {
 
       <ServicesSection onServiceClick={handleServiceClick} />
 
-      <SafetySection />
-
       <ListingsSection
         search={search}
         city={city}
@@ -436,6 +434,8 @@ export default function HomePage() {
         activeCategory={activeCategory}
         setActiveCategory={setActiveCategory}
       />
+
+      <SafetySection />
 
       <Footer />
     </main>

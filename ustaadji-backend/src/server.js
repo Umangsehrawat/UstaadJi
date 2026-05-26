@@ -10,9 +10,17 @@ const app = express();
 
 const server = http.createServer(app);
 
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  "https://ustaadji.in",
+  "https://www.ustaadji.in",
+  "http://localhost:5173",
+  "http://localhost:3000",
+].filter(Boolean);
+
 const io = new Server(server, {
   cors: {
-    origin: process.env.FRONTEND_URL,
+    origin: allowedOrigins,
     credentials: true,
   },
 });
@@ -62,7 +70,13 @@ const adminRoutes = require("./routes/adminRoutes");
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );

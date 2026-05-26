@@ -96,12 +96,19 @@ exports.getConversations = async (req, res) => {
         buyer.name AS buyer_name,
         seller.name AS seller_name,
         (
-          SELECT message 
-          FROM messages 
+          SELECT message
+          FROM messages
           WHERE messages.conversation_id = conversations.id
-          ORDER BY created_at DESC 
+          ORDER BY created_at DESC
           LIMIT 1
-        ) AS last_message
+        ) AS last_message,
+        (
+          SELECT created_at
+          FROM messages
+          WHERE messages.conversation_id = conversations.id
+          ORDER BY created_at DESC
+          LIMIT 1
+        ) AS last_message_at
       FROM conversations
       LEFT JOIN ads ON conversations.ad_id = ads.id
       LEFT JOIN users buyer ON conversations.buyer_id = buyer.id
