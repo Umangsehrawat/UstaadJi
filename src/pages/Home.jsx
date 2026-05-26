@@ -126,7 +126,7 @@ function Hero({ search, setSearch, city, setCity, handleSearch }) {
               <span style={{ color: "#fd5609" }}>ji</span>
             </div>
             <p
-              className="mt-3 text-[11px] font-black uppercase tracking-[0.3em]"
+              className="mt-6 text-[11px] font-black uppercase tracking-[0.3em]"
               style={{ color: "#fd5609" }}
             >
               — Skilled Experts. Reliable Service. —

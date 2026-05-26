@@ -1,13 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-  <rect width="32" height="32" rx="8" fill="#152e4c"/>
+  <!-- Navy background -->
+  <rect width="32" height="32" rx="7" fill="#152e4c"/>
+  <!-- White "U" -->
   <text
-    x="14"
+    x="9"
     y="24"
     font-family="Arial Black, Arial, sans-serif"
     font-weight="900"
-    font-size="20"
+    font-size="22"
     fill="white"
-    text-anchor="middle"
   >U</text>
-  <circle cx="25" cy="8" r="4" fill="#fd5609"/>
+  <!-- Orange dot accent (the "ji" orange) -->
+  <circle cx="26" cy="7" r="4.5" fill="#fd5609"/>
 </svg>
