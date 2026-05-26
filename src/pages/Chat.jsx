@@ -176,21 +176,19 @@ export default function Chat() {
                     key={msg.id}
                     className={`flex ${isMe ? "justify-end" : "justify-start"}`}
                   >
-                    <div className="flex flex-col gap-1">
-                      <div
-                        className={`max-w-[75%] rounded-3xl px-5 py-3 ${
-                          isMe
-                            ? "bg-emerald-500 text-white"
-                            : "border border-slate-200 bg-white text-slate-800"
-                        }`}
-                      >
-                        <p className={`text-xs font-black mb-1 ${isMe ? "text-emerald-100" : "text-slate-400"}`}>
-                          {isMe ? "You" : msg.sender_name || "User"}
-                        </p>
-                        <p className="font-semibold leading-relaxed">{msg.message}</p>
-                      </div>
+                    <div
+                      className={`max-w-[75%] rounded-3xl px-5 py-3 ${
+                        isMe
+                          ? "bg-emerald-500 text-white"
+                          : "border border-slate-200 bg-white text-slate-800"
+                      }`}
+                    >
+                      <p className={`text-xs font-black mb-1 ${isMe ? "text-emerald-100" : "text-slate-400"}`}>
+                        {isMe ? "You" : msg.sender_name || "User"}
+                      </p>
+                      <p className="font-semibold leading-relaxed">{msg.message}</p>
                       {msg.created_at && (
-                        <p className={`text-[11px] font-semibold text-slate-400 px-2 ${isMe ? "text-right" : "text-left"}`}>
+                        <p className={`mt-1.5 text-right text-[10px] font-semibold ${isMe ? "text-emerald-200" : "text-slate-400"}`}>
                           {formatTime(msg.created_at)}
                         </p>
                       )}

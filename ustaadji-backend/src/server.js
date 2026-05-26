@@ -41,14 +41,34 @@ const runMigrations = async () => {
     );
   } catch (_) {}
 
-  const newCategories = [
+  const serviceCategories = [
     "Appliance Repair", "Brick & Masonry", "Carpentry & Woodwork",
     "Electrician", "Excavation & Demolition", "Air Conditioning",
     "Painters & Painting", "Plumbing", "Renovations",
     "Welding", "Windows & Doors", "Deep Cleaning",
     "Marble & Tilework", "Wifi / CCTV / Smart Door", "Other Services",
   ];
-  for (const name of newCategories) {
+
+  // Remove old/legacy categories that are not in our service list
+  // (only if no ads are currently using them)
+  try {
+    await pool.query(`
+      DELETE FROM categories
+      WHERE name NOT IN (
+        'Appliance Repair', 'Brick & Masonry', 'Carpentry & Woodwork',
+        'Electrician', 'Excavation & Demolition', 'Air Conditioning',
+        'Painters & Painting', 'Plumbing', 'Renovations',
+        'Welding', 'Windows & Doors', 'Deep Cleaning',
+        'Marble & Tilework', 'Wifi / CCTV / Smart Door', 'Other Services'
+      )
+      AND id NOT IN (
+        SELECT DISTINCT category_id FROM ads WHERE category_id IS NOT NULL
+      )
+    `);
+  } catch (_) {}
+
+  // Insert new service categories if they don't exist yet
+  for (const name of serviceCategories) {
     try {
       await pool.query(
         `INSERT INTO categories (name)
