@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useLocation, useNavigate } from "react-router-dom";
-import { MapPin, ArrowLeft, Phone, ShieldCheck, Flag, X } from "lucide-react";
+import { MapPin, ArrowLeft, Phone, ShieldCheck, Flag, X, Share2, Check } from "lucide-react";
 import api from "../api/api";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -24,6 +24,26 @@ export default function AdDetails() {
 
   // Message error banner
   const [messageError, setMessageError] = useState("");
+
+  // Share
+  const [copied, setCopied] = useState(false);
+
+  const handleShare = async () => {
+    const shareData = {
+      title: ad?.title || "Ustaadji listing",
+      text: `Check out this listing on Ustaadji: ${ad?.title} in ${ad?.city}`,
+      url: window.location.href,
+    };
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2500);
+      }
+    } catch (_) {}
+  };
 
   const backTo = location.state?.from || "/";
   const backLabel = location.state?.label || "Back to listings";
@@ -333,13 +353,23 @@ export default function AdDetails() {
               </ul>
             </div>
 
-            <button
-              onClick={() => setShowReportModal(true)}
-              className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 px-5 py-4 text-sm font-black text-slate-600 hover:bg-slate-50 hover:text-red-500 transition"
-            >
-              <Flag size={16} />
-              Report this ad
-            </button>
+            <div className="mt-5 flex gap-3">
+              <button
+                onClick={handleShare}
+                className="flex flex-1 items-center justify-center gap-2 rounded-2xl border border-slate-200 px-4 py-4 text-sm font-black text-slate-600 hover:bg-slate-50 hover:text-emerald-600 transition"
+              >
+                {copied ? <Check size={16} className="text-emerald-500" /> : <Share2 size={16} />}
+                {copied ? "Copied!" : "Share"}
+              </button>
+
+              <button
+                onClick={() => setShowReportModal(true)}
+                className="flex flex-1 items-center justify-center gap-2 rounded-2xl border border-slate-200 px-4 py-4 text-sm font-black text-slate-600 hover:bg-slate-50 hover:text-red-500 transition"
+              >
+                <Flag size={16} />
+                Report
+              </button>
+            </div>
           </aside>
         </div>
       </section>
