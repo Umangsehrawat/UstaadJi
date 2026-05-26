@@ -83,9 +83,6 @@ function Navbar() {
               <span style={{ color: "#152e4c" }}>Ustaad</span>
               <span style={{ color: "#fd5609" }}>ji</span>
             </h1>
-            <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              Skilled Experts. Reliable Service.
-            </p>
           </div>
         </Link>
 
