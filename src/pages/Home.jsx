@@ -500,6 +500,8 @@ export default function HomePage() {
 
       <ServicesSection onServiceClick={handleServiceClick} />
 
+      <RecentlyViewedSection />
+
       <ListingsSection
         search={search}
         city={city}
@@ -507,8 +509,6 @@ export default function HomePage() {
         activeCategory={activeCategory}
         setActiveCategory={setActiveCategory}
       />
-
-      <RecentlyViewedSection />
 
       <SafetySection />
 
