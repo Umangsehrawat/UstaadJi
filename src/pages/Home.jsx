@@ -112,7 +112,7 @@ function SearchBox({ search, setSearch, city, setCity, handleSearch }) {
 function Hero({ search, setSearch, city, setCity, handleSearch }) {
   return (
     <section className="relative overflow-hidden bg-[radial-gradient(circle_at_top_left,#d1fae5,transparent_34%),linear-gradient(135deg,#f8fafc_0%,#eef2ff_55%,#ecfeff_100%)]">
-      <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+      <div className="mx-auto max-w-7xl px-4 pt-10 pb-20 sm:px-6 lg:px-8 lg:pt-14 lg:pb-28">
         <motion.div
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
@@ -120,18 +120,18 @@ function Hero({ search, setSearch, city, setCity, handleSearch }) {
           className="mx-auto max-w-4xl text-center"
         >
           {/* Brand text lockup */}
-          <div className="mx-auto mb-8">
-            <div className="text-5xl font-black leading-none sm:text-6xl lg:text-7xl">
+          <div className="mx-auto mb-10">
+            <div className="text-6xl font-black leading-none sm:text-7xl lg:text-8xl">
               <span style={{ color: "#152e4c" }}>Ustaad</span>
               <span style={{ color: "#fd5609" }}>ji</span>
             </div>
             <p
-              className="mt-4 text-[11px] font-black uppercase tracking-[0.3em]"
+              className="mt-3 text-[11px] font-black uppercase tracking-[0.3em]"
               style={{ color: "#fd5609" }}
             >
               — Skilled Experts. Reliable Service. —
             </p>
-            <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/70 px-4 py-2 text-sm font-bold text-emerald-700 shadow-sm">
+            <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/70 px-4 py-2 text-sm font-bold text-emerald-700 shadow-sm">
               <Star size={16} fill="currentColor" />
               Trusted local services across India
             </div>
