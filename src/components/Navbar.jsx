@@ -65,7 +65,7 @@ function Navbar() {
         <Link to="/" className="flex items-center gap-2.5">
           {logoError ? (
             <div
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-lg font-black text-white shadow"
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-xl font-black text-white shadow"
               style={{ backgroundColor: "#152e4c" }}
             >
               U
@@ -74,7 +74,7 @@ function Navbar() {
             <img
               src="/logo-icon.png"
               alt="Ustaadji"
-              className="h-10 w-10 object-contain"
+              className="h-12 w-12 object-contain"
               onError={() => setLogoError(true)}
             />
           )}

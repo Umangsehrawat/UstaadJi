@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import { Search, MapPin, SlidersHorizontal, ShieldCheck, CreditCard, UserCheck, MessageCircleWarning, Eye, BadgeCheck } from "lucide-react";
+import { Search, MapPin, Star, SlidersHorizontal, ShieldCheck, CreditCard, UserCheck, MessageCircleWarning, Eye, BadgeCheck } from "lucide-react";
 import { motion } from "framer-motion";
 
 import Navbar from "../components/Navbar";
@@ -119,25 +119,21 @@ function Hero({ search, setSearch, city, setCity, handleSearch }) {
           transition={{ duration: 0.55 }}
           className="mx-auto max-w-4xl text-center"
         >
-          {/* Brand logo lockup */}
-          <div className="mx-auto mb-8 flex items-center justify-center gap-4">
-            <img
-              src="/logo-icon.png"
-              alt="Ustaadji"
-              className="h-16 w-16 object-contain sm:h-20 sm:w-20"
-              onError={(e) => e.currentTarget.style.display = "none"}
-            />
-            <div className="text-left">
-              <div className="text-5xl font-black leading-none sm:text-6xl lg:text-7xl">
-                <span style={{ color: "#152e4c" }}>Ustaad</span>
-                <span style={{ color: "#fd5609" }}>ji</span>
-              </div>
-              <p
-                className="mt-1 text-[11px] font-black uppercase tracking-[0.25em]"
-                style={{ color: "#fd5609" }}
-              >
-                — Skilled Experts. Reliable Service. —
-              </p>
+          {/* Brand text lockup */}
+          <div className="mx-auto mb-8">
+            <div className="text-5xl font-black leading-none sm:text-6xl lg:text-7xl">
+              <span style={{ color: "#152e4c" }}>Ustaad</span>
+              <span style={{ color: "#fd5609" }}>ji</span>
+            </div>
+            <p
+              className="mt-4 text-[11px] font-black uppercase tracking-[0.3em]"
+              style={{ color: "#fd5609" }}
+            >
+              — Skilled Experts. Reliable Service. —
+            </p>
+            <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/70 px-4 py-2 text-sm font-bold text-emerald-700 shadow-sm">
+              <Star size={16} fill="currentColor" />
+              Trusted local services across India
             </div>
           </div>
 
