@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
 import HomePage from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -15,7 +16,33 @@ import Terms from "./pages/Terms";
 import Support from "./pages/Support";
 import NotFound from "./pages/NotFound";
 
+// Changes tab title + favicon to orange when the user switches away
+function useTabVisibility() {
+  useEffect(() => {
+    const originalTitle = document.title;
+
+    const getFaviconEl = () =>
+      document.querySelector("link[rel~='icon'][type='image/svg+xml']");
+
+    const handleVisibility = () => {
+      const favicon = getFaviconEl();
+      if (document.hidden) {
+        document.title = "👋 Come back to Ustaadji!";
+        if (favicon) favicon.href = "/favicon-away.svg";
+      } else {
+        document.title = originalTitle;
+        if (favicon) favicon.href = "/favicon.svg?v=3";
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, []);
+}
+
 export default function App() {
+  useTabVisibility();
+
   return (
     <BrowserRouter>
       <Routes>

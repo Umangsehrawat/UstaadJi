@@ -125,11 +125,10 @@ function Hero({ search, setSearch, city, setCity, handleSearch }) {
               <span style={{ color: "#152e4c" }}>Ustaad</span>
               <span style={{ color: "#fd5609" }}>ji</span>
             </div>
-            <p
-              className="mt-6 text-[11px] font-black uppercase tracking-[0.3em]"
-              style={{ color: "#fd5609" }}
-            >
-              — Skilled Experts. Reliable Service. —
+            <p className="mt-6 text-[11px] font-black uppercase tracking-[0.3em]">
+              <span style={{ color: "#fd5609" }}>— </span>
+              <span style={{ color: "#152e4c" }}>Skilled Experts. Reliable Service.</span>
+              <span style={{ color: "#fd5609" }}> —</span>
             </p>
             <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/70 px-4 py-2 text-sm font-bold text-emerald-700 shadow-sm">
               <Star size={16} fill="currentColor" />
