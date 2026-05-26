@@ -109,6 +109,16 @@ export default function Chat() {
     }
   };
 
+  const formatTime = (dateStr) => {
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+    return date.toLocaleTimeString("en-IN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+
   const otherUser = conversation
     ? user?.id === conversation.buyer_id
       ? conversation.seller_name
@@ -166,17 +176,24 @@ export default function Chat() {
                     key={msg.id}
                     className={`flex ${isMe ? "justify-end" : "justify-start"}`}
                   >
-                    <div
-                      className={`max-w-[75%] rounded-3xl px-5 py-3 ${
-                        isMe
-                          ? "bg-emerald-500 text-white"
-                          : "border border-slate-200 bg-white text-slate-800"
-                      }`}
-                    >
-                      <p className={`text-xs font-black mb-1 ${isMe ? "text-emerald-100" : "text-slate-400"}`}>
-                        {isMe ? "You" : msg.sender_name || "User"}
-                      </p>
-                      <p className="font-semibold leading-relaxed">{msg.message}</p>
+                    <div className="flex flex-col gap-1">
+                      <div
+                        className={`max-w-[75%] rounded-3xl px-5 py-3 ${
+                          isMe
+                            ? "bg-emerald-500 text-white"
+                            : "border border-slate-200 bg-white text-slate-800"
+                        }`}
+                      >
+                        <p className={`text-xs font-black mb-1 ${isMe ? "text-emerald-100" : "text-slate-400"}`}>
+                          {isMe ? "You" : msg.sender_name || "User"}
+                        </p>
+                        <p className="font-semibold leading-relaxed">{msg.message}</p>
+                      </div>
+                      {msg.created_at && (
+                        <p className={`text-[11px] font-semibold text-slate-400 px-2 ${isMe ? "text-right" : "text-left"}`}>
+                          {formatTime(msg.created_at)}
+                        </p>
+                      )}
                     </div>
                   </div>
                 );
