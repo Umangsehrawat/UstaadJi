@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { UploadCloud, X, CheckCircle } from "lucide-react";
+import { UploadCloud, X, CheckCircle, Loader2 } from "lucide-react";
 import api from "../api/api";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { compressImage } from "../utils/compressImage";
 
 const MAX_IMAGES = 5;
 const MAX_SIZE_MB = 2;
@@ -27,6 +28,7 @@ export default function PostAd() {
   const [images, setImages] = useState([]);
   const [previews, setPreviews] = useState([]);
   const [imageError, setImageError] = useState("");
+  const [compressing, setCompressing] = useState(false);
   const [formError, setFormError] = useState("");
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -54,29 +56,34 @@ export default function PostAd() {
     setFormError("");
   };
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     setImageError("");
     const incoming = Array.from(e.target.files);
+    e.target.value = "";
 
     if (images.length + incoming.length > MAX_IMAGES) {
       setImageError(`You can upload a maximum of ${MAX_IMAGES} images.`);
-      e.target.value = "";
       return;
     }
 
-    const oversized = incoming.filter((f) => f.size > MAX_SIZE_BYTES);
-    if (oversized.length > 0) {
-      setImageError(
-        `These files exceed ${MAX_SIZE_MB}MB: ${oversized.map((f) => f.name).join(", ")}`
+    setCompressing(true);
+    try {
+      const processed = await Promise.all(
+        incoming.map((file) =>
+          file.size > MAX_SIZE_BYTES
+            ? compressImage(file, MAX_SIZE_MB) // compress oversized files to under 2MB
+            : Promise.resolve(file)
+        )
       );
-      e.target.value = "";
-      return;
-    }
 
-    const newPreviews = incoming.map((f) => URL.createObjectURL(f));
-    setImages((prev) => [...prev, ...incoming]);
-    setPreviews((prev) => [...prev, ...newPreviews]);
-    e.target.value = "";
+      const newPreviews = processed.map((f) => URL.createObjectURL(f));
+      setImages((prev) => [...prev, ...processed]);
+      setPreviews((prev) => [...prev, ...newPreviews]);
+    } catch {
+      setImageError("Failed to process one or more images. Please try again.");
+    } finally {
+      setCompressing(false);
+    }
   };
 
   const removeImage = (index) => {
@@ -288,7 +295,7 @@ export default function PostAd() {
               <label className="mb-2 block text-sm font-black text-slate-700">
                 Photos{" "}
                 <span className="font-semibold text-slate-400">
-                  (max {MAX_IMAGES} images, {MAX_SIZE_MB}MB each)
+                  (max {MAX_IMAGES} images · large photos auto-compressed)
                 </span>
               </label>
 
@@ -309,13 +316,22 @@ export default function PostAd() {
                 </div>
               )}
 
-              {images.length < MAX_IMAGES && (
+              {compressing && (
+                <div className="mb-3 flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4">
+                  <Loader2 size={18} className="animate-spin text-emerald-600" />
+                  <p className="text-sm font-black text-emerald-700">
+                    Compressing image{images.length !== 1 ? "s" : ""}… please wait
+                  </p>
+                </div>
+              )}
+
+              {images.length < MAX_IMAGES && !compressing && (
                 <label className="flex cursor-pointer flex-col items-center gap-3 rounded-3xl border-2 border-dashed border-slate-300 bg-slate-50 px-6 py-10 transition hover:border-emerald-400 hover:bg-emerald-50">
                   <UploadCloud size={36} className="text-slate-400" />
                   <div className="text-center">
                     <p className="font-black text-slate-700">Click to upload photos</p>
                     <p className="mt-1 text-sm font-semibold text-slate-400">
-                      JPG, PNG, WEBP — max {MAX_SIZE_MB}MB each · {images.length}/{MAX_IMAGES} uploaded
+                      JPG, PNG, WEBP · {images.length}/{MAX_IMAGES} uploaded · large photos auto-compressed
                     </p>
                   </div>
                   <input
@@ -345,10 +361,10 @@ export default function PostAd() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || compressing}
               className="rounded-2xl bg-emerald-500 px-6 py-4 text-lg font-black text-white shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {loading ? "Publishing..." : "Publish Ad"}
+              {loading ? "Publishing..." : compressing ? "Compressing images…" : "Publish Ad"}
             </button>
           </form>
         </div>
