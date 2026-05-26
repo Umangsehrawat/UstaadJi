@@ -57,6 +57,21 @@ export default function AdDetails() {
         if (fetchedAd.images && fetchedAd.images.length > 0) {
           setSelectedImage(fetchedAd.images[0]);
         }
+        // Save to recently viewed (max 6, deduplicated)
+        const entry = {
+          id: fetchedAd.id,
+          title: fetchedAd.title,
+          price: fetchedAd.price,
+          city: fetchedAd.city,
+          category_name: fetchedAd.category_name,
+          image: fetchedAd.images?.[0] || null,
+        };
+        const prev = JSON.parse(localStorage.getItem("recentlyViewed") || "[]");
+        const deduped = prev.filter((v) => v.id !== entry.id);
+        localStorage.setItem(
+          "recentlyViewed",
+          JSON.stringify([entry, ...deduped].slice(0, 6))
+        );
       } catch (error) {
         console.error(error);
       } finally {

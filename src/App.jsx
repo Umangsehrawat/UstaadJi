@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
+import ScrollToTopButton from "./components/ScrollToTopButton";
 import HomePage from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -43,24 +44,27 @@ export default function App() {
   useTabVisibility();
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/post-ad" element={<PostAd />} />
-        <Route path="/ads/:id" element={<AdDetails />} />
-        <Route path="/edit-ad/:id" element={<EditAd />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/chat/:conversationId" element={<Chat />} />
-        <Route path="/messages" element={<Messages />} />
-        <Route path="/favorites" element={<Favorites />} />
-        <Route path="/privacy" element={<Privacy />} />
-        <Route path="/terms" element={<Terms />} />
-        <Route path="/support" element={<Support />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </BrowserRouter>
+    <>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/post-ad" element={<PostAd />} />
+          <Route path="/ads/:id" element={<AdDetails />} />
+          <Route path="/edit-ad/:id" element={<EditAd />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/chat/:conversationId" element={<Chat />} />
+          <Route path="/messages" element={<Messages />} />
+          <Route path="/favorites" element={<Favorites />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/support" element={<Support />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+      <ScrollToTopButton />
+    </>
   );
 }

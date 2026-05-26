@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import { Search, MapPin, Star, SlidersHorizontal, ShieldCheck, CreditCard, UserCheck, MessageCircleWarning, Eye, BadgeCheck } from "lucide-react";
+import { Search, MapPin, Star, SlidersHorizontal, ShieldCheck, CreditCard, UserCheck, MessageCircleWarning, Eye, BadgeCheck, Clock } from "lucide-react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -240,6 +241,66 @@ const safetyTips = [
   },
 ];
 
+function RecentlyViewedSection() {
+  const [items, setItems] = useState([]);
+
+  useEffect(() => {
+    const stored = JSON.parse(localStorage.getItem("recentlyViewed") || "[]");
+    setItems(stored);
+  }, []);
+
+  if (items.length === 0) return null;
+
+  const fallback =
+    "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=400&q=80";
+
+  return (
+    <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mb-5 flex items-center gap-2">
+        <Clock size={18} className="text-slate-400" />
+        <h2 className="text-xl font-black text-slate-900">Recently Viewed</h2>
+      </div>
+
+      <div className="flex gap-4 overflow-x-auto pb-3">
+        {items.map((ad) => {
+          const priceText =
+            ad.price && Number(ad.price) > 0
+              ? `₹${Number(ad.price).toLocaleString("en-IN")}`
+              : "Price on request";
+
+          return (
+            <Link
+              key={ad.id}
+              to={`/ads/${ad.id}`}
+              className="group flex w-44 shrink-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:border-emerald-300 hover:shadow-md"
+            >
+              <div className="h-28 overflow-hidden bg-slate-100">
+                <img
+                  src={ad.image || fallback}
+                  alt={ad.title}
+                  className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                  onError={(e) => { e.currentTarget.src = fallback; }}
+                />
+              </div>
+              <div className="flex flex-1 flex-col p-3">
+                <p className="line-clamp-2 text-xs font-black leading-tight text-slate-900">
+                  {ad.title}
+                </p>
+                <p className="mt-1 text-sm font-black text-slate-800">
+                  {priceText}
+                </p>
+                <p className="mt-1 text-[11px] font-semibold text-slate-400">
+                  {ad.city}
+                </p>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 function SafetySection() {
   return (
     <section id="safety" className="py-20" style={{ backgroundColor: "#152e4c" }}>
@@ -446,6 +507,8 @@ export default function HomePage() {
         activeCategory={activeCategory}
         setActiveCategory={setActiveCategory}
       />
+
+      <RecentlyViewedSection />
 
       <SafetySection />
 
