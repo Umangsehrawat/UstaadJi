@@ -21,17 +21,16 @@ function useTabVisibility() {
   useEffect(() => {
     const originalTitle = document.title;
 
-    const getFaviconEl = () =>
-      document.querySelector("link[rel~='icon'][type='image/svg+xml']");
+    const getFavicon = () => document.querySelector("link[rel~='icon']");
 
     const handleVisibility = () => {
-      const favicon = getFaviconEl();
+      const favicon = getFavicon();
       if (document.hidden) {
         document.title = "👋 Come back to Ustaadji!";
         if (favicon) favicon.href = "/favicon-away.svg";
       } else {
         document.title = originalTitle;
-        if (favicon) favicon.href = "/favicon.svg?v=3";
+        if (favicon) favicon.href = "/logo-icon.png?v=4";
       }
     };
 
