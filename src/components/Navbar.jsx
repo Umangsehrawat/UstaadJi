@@ -12,6 +12,7 @@ function Navbar() {
   });
   const [unreadCount, setUnreadCount] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [logoError, setLogoError] = useState(false);
 
   useEffect(() => {
     const fetchUnreadCount = async () => {
@@ -61,13 +62,30 @@ function Navbar() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
 
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#00072d] text-lg font-black text-white shadow">
-            U
-          </div>
+        <Link to="/" className="flex items-center gap-2.5">
+          {logoError ? (
+            <div
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-lg font-black text-white shadow"
+              style={{ backgroundColor: "#152e4c" }}
+            >
+              U
+            </div>
+          ) : (
+            <img
+              src="/logo-icon.png"
+              alt="Ustaadji"
+              className="h-10 w-10 object-contain"
+              onError={() => setLogoError(true)}
+            />
+          )}
           <div className="hidden sm:block">
-            <h1 className="text-lg font-black leading-none text-[#00072d]">Ustaadji</h1>
-            <p className="mt-0.5 text-xs font-medium text-slate-400">India's service marketplace</p>
+            <h1 className="text-lg font-black leading-none">
+              <span style={{ color: "#152e4c" }}>Ustaad</span>
+              <span style={{ color: "#fd5609" }}>ji</span>
+            </h1>
+            <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              Skilled Experts. Reliable Service.
+            </p>
           </div>
         </Link>
 

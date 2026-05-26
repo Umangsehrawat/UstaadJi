@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import { Search, MapPin, Star, SlidersHorizontal, ShieldCheck, CreditCard, UserCheck, MessageCircleWarning, Eye, BadgeCheck } from "lucide-react";
+import { Search, MapPin, SlidersHorizontal, ShieldCheck, CreditCard, UserCheck, MessageCircleWarning, Eye, BadgeCheck } from "lucide-react";
 import { motion } from "framer-motion";
 
 import Navbar from "../components/Navbar";
@@ -119,13 +119,30 @@ function Hero({ search, setSearch, city, setCity, handleSearch }) {
           transition={{ duration: 0.55 }}
           className="mx-auto max-w-4xl text-center"
         >
-          <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/70 px-4 py-2 text-sm font-bold text-emerald-700 shadow-sm">
-            <Star size={16} fill="currentColor" />
-            Trusted local services across India
+          {/* Brand logo lockup */}
+          <div className="mx-auto mb-8 flex items-center justify-center gap-4">
+            <img
+              src="/logo-icon.png"
+              alt="Ustaadji"
+              className="h-16 w-16 object-contain sm:h-20 sm:w-20"
+              onError={(e) => e.currentTarget.style.display = "none"}
+            />
+            <div className="text-left">
+              <div className="text-5xl font-black leading-none sm:text-6xl lg:text-7xl">
+                <span style={{ color: "#152e4c" }}>Ustaad</span>
+                <span style={{ color: "#fd5609" }}>ji</span>
+              </div>
+              <p
+                className="mt-1 text-[11px] font-black uppercase tracking-[0.25em]"
+                style={{ color: "#fd5609" }}
+              >
+                — Skilled Experts. Reliable Service. —
+              </p>
+            </div>
           </div>
 
-          <h1 className="text-5xl font-black tracking-tight text-slate-950 sm:text-6xl lg:text-7xl">
-            Find trusted experts. <br />
+          <h1 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl lg:text-5xl">
+            Find trusted experts.<br />
             <span className="text-emerald-500">Right near you.</span>
           </h1>
 
@@ -230,7 +247,7 @@ const safetyTips = [
 
 function SafetySection() {
   return (
-    <section id="safety" className="bg-[#00072d] py-20">
+    <section id="safety" className="py-20" style={{ backgroundColor: "#152e4c" }}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-12 text-center">
           <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-bold text-emerald-400">

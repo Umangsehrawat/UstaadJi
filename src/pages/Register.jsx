@@ -71,10 +71,28 @@ function Register() {
       <div className="flex-1 flex items-center justify-center px-4 py-16">
         <div className="w-full max-w-md">
           <div className="mb-8 text-center">
+            {/* Brand logo */}
+            <div className="mx-auto mb-5 flex items-center justify-center gap-3">
+              <img
+                src="/logo-icon.png"
+                alt="Ustaadji"
+                className="h-14 w-14 object-contain"
+                onError={(e) => e.currentTarget.style.display = "none"}
+              />
+              <div className="text-left">
+                <div className="text-3xl font-black leading-none">
+                  <span style={{ color: "#152e4c" }}>Ustaad</span>
+                  <span style={{ color: "#fd5609" }}>ji</span>
+                </div>
+                <p className="mt-0.5 text-[10px] font-black uppercase tracking-[0.2em]" style={{ color: "#fd5609" }}>
+                  Skilled Experts. Reliable Service.
+                </p>
+              </div>
+            </div>
             <p className="text-sm font-black uppercase tracking-[0.2em] text-emerald-600 mb-2">
               Get Started
             </p>
-            <h1 className="text-4xl font-black text-slate-900 tracking-tight">
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight">
               Create your account
             </h1>
             <p className="mt-2 font-semibold text-slate-500">
