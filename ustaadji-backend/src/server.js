@@ -67,13 +67,30 @@ const runMigrations = async () => {
     `);
   } catch (_) {}
 
-  // Insert new service categories if they don't exist yet
-  for (const name of serviceCategories) {
+  // Insert new service categories (with slug) if they don't exist yet
+  const categoryData = [
+    ["Appliance Repair",         "appliance-repair"],
+    ["Brick & Masonry",          "brick-masonry"],
+    ["Carpentry & Woodwork",     "carpentry-woodwork"],
+    ["Electrician",              "electrician"],
+    ["Excavation & Demolition",  "excavation-demolition"],
+    ["Air Conditioning",         "air-conditioning"],
+    ["Painters & Painting",      "painters-painting"],
+    ["Plumbing",                 "plumbing"],
+    ["Renovations",              "renovations"],
+    ["Welding",                  "welding"],
+    ["Windows & Doors",          "windows-doors"],
+    ["Deep Cleaning",            "deep-cleaning"],
+    ["Marble & Tilework",        "marble-tilework"],
+    ["Wifi / CCTV / Smart Door", "wifi-cctv-smart-door"],
+    ["Other Services",           "other-services"],
+  ];
+  for (const [name, slug] of categoryData) {
     try {
       await pool.query(
-        `INSERT INTO categories (name)
-         SELECT $1 WHERE NOT EXISTS (SELECT 1 FROM categories WHERE name = $1)`,
-        [name]
+        `INSERT INTO categories (name, slug)
+         SELECT $1, $2 WHERE NOT EXISTS (SELECT 1 FROM categories WHERE name = $1)`,
+        [name, slug]
       );
     } catch (_) {}
   }
